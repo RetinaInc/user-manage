@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Registration Page</title>
+<link type="text/css" rel="stylesheet" href="assets/css/form.css">
 <script type="text/javascript">
 	function validate_required(field, alerttext) {
 		with (field) {
@@ -40,25 +41,24 @@
 		onsubmit="return validate_form()">
 		<table>
 			<tr>
-				<td><strong>Email Address: </strong></td>
+				<td>Email</td>
 				<td><input type="email" name="email"></td>
 			<tr>
 			<tr>
-				<td><strong>User Name: </strong></td>
+				<td>Username</td>
 				<td><input type="text" name="username" maxlength="16"></td>
 			</tr>
 			<tr>
-				<td><strong>Password: </strong></td>
+				<td>Password</td>
 				<td><input type="password" name="password1" maxlength="32"></td>
 			</tr>
 			<tr>
-				<td><strong>Confirm Password: </strong></td>
+				<td>Confirm Password</td>
 				<td><input type="password" name="password2" maxlength="32"></td>
 			</tr>
 		</table>
-		<input type="submit" value="REGISTER">
+		<input type="submit" value="Register" id="submit">
 	</form>
-	If you already have an account, please
-	<a href="login.html">login</a>.
+	<div id="tolog">If you already have an account, please<a href="login.html"> login</a>.</div>
 </body>
 </html>
