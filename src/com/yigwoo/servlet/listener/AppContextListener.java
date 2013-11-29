@@ -38,6 +38,5 @@ public class AppContextListener implements ServletContextListener {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		System.out.println("DB Connection Initialized");
 	}
 }

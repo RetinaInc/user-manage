@@ -23,15 +23,12 @@ public class AuthenticationFilter implements Filter {
 		HttpServletRequest request = (HttpServletRequest) req;
 		HttpServletResponse response = (HttpServletResponse) resp;
 		String uri = request.getRequestURI();
-		System.out.println(uri);
 		HttpSession session = request.getSession(false);
-		if (session == null && !(uri.endsWith("html")) && 
-				!( uri.endsWith("login") || uri.endsWith("register") )) {
+		if (session == null && !(uri.endsWith("html"))
+				&& !(uri.endsWith("login") || uri.endsWith("register"))) {
 			response.sendRedirect("login.html");
-			System.out.println("Send redirect");
 		} else {
 			chain.doFilter(request, response);
-			System.out.println("dofilter");
 		}
 	}
 
