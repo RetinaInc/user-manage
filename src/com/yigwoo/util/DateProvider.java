@@ -1,6 +1,12 @@
-package com.yigwoo.utils;
+package com.yigwoo.util;
 
 import java.util.Date;
+
+/**
+ * A simple date provider class
+ * @author YigWoo
+ *
+ */
 
 public interface DateProvider {
 	Date getDate();

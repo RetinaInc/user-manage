@@ -18,5 +18,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate-validator"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jstl"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/slf4j-log4j"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/shiro"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

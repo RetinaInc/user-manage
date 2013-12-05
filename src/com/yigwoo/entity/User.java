@@ -12,7 +12,11 @@ import javax.persistence.Transient;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
-
+/**
+ * Persistence entity, corresponds to 'users_table'
+ * @author YigWoo
+ *
+ */
 @Entity
 @Table(name="users_table")
 public class User {

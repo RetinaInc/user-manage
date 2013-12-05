@@ -26,7 +26,6 @@ public class RegisterController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String registerForm() {
-		System.out.println("Here");
 		return "register";
 	}
 	

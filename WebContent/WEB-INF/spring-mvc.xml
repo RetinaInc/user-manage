@@ -35,6 +35,7 @@
 	</mvc:annotation-driven>
 
 	<mvc:default-servlet-handler />
+	<mvc:view-controller path="/" view-name="redirect:/profile"/>	
 
 	<bean
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
