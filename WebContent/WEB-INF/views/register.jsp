@@ -13,25 +13,25 @@
 		class="form-horizontal">
 		<fieldset>
 			<legend>
-				<small>User Registration</small>
+				<small>User Registration(all fields required)</small>
 			</legend>
 			<div class="control-group">
 				<label for="username" class="control-label">Username: </label>
-				<div class="control">
+				<div class="controls">
 					<input type="text" id="username" name="username"
 						class="input-large required" minlength="3" />
 				</div>
 			</div>
 			<div class="control-group">
 				<label for="email" class="control-label">Email: </label>
-				<div class="control">
+				<div class="controls">
 					<input type="text" id="email" name="email"
 						class="input-large required" />
 				</div>
 			</div>
 			<div class="control-group">
 				<label for="plainPassword" class="control-label">Password: </label>
-				<div class="control">
+				<div class="controls">
 					<input type="password" id="plainPassword" name="plainPassword"
 						class="input-large required" />
 				</div>
@@ -39,7 +39,7 @@
 			<div class="control-group">
 				<label for="confirmPassword" class="control-label">Confirm
 					Password: </label>
-				<div class="control">
+				<div class="controls">
 					<input type="password" id="confirmPassword" name="confirmPassword"
 						class="input-large required" equalTo="#plainPassword" />
 				</div>
