@@ -13,6 +13,12 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/MySQL/Connector J 5.1.26/mysql-connector-java-5.1.26-bin.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/spring"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jstl"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/shiro"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/slf4j-logback"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate-validator"/>
+	<classpathentry kind="lib" path="D:/web-app-libs/sitemesh-2.4.2.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
