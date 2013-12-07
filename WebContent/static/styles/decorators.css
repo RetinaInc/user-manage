@@ -1,0 +1,9 @@
+#footer {
+    margin-top: 15px;
+    padding: 15px 0px 0px 0px;
+    font-size: 95%;
+    text-align: center;
+    border-top: 2px solid #efefef;
+}
+
+#footer a {color: #bd2421;}

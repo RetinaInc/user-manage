@@ -8,8 +8,10 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
@@ -52,6 +54,7 @@ public class User {
 	}
 	
 	@Transient
+	@Length(min=6)
 	public String getPlainPassword() {
 		return plainPassword;
 	}
@@ -64,6 +67,8 @@ public class User {
 		return salt;
 	}
 
+	@Length(min=5)
+	@NotBlank
 	public String getUsername() {
 		return username;
 	}
