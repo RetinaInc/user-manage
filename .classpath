@@ -20,5 +20,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/slf4j-logback"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/hibernate-validator"/>
 	<classpathentry kind="lib" path="D:/web-app-libs/sitemesh-2.4.2.jar"/>
+	<classpathentry kind="lib" path="D:/web-app-libs/guava-15.0.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

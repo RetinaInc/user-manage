@@ -36,8 +36,10 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	 */
 	@Override
 	protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-		// ShiroUser shiroUser = (ShiroUser) principals.getPrimaryPrincipal();
+		ShiroUser shiroUser = (ShiroUser) principals.getPrimaryPrincipal();
+		User user = accountService.findUserByUsername(shiroUser.getUsername());
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+		info.addRoles(user.getRolesList());
 		return info;
 	}
 
@@ -52,7 +54,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		if (user != null) {
 			byte[] salt = Encodes.decodeHex(user.getSalt());
 			return new SimpleAuthenticationInfo(new ShiroUser(user.getId(),
-					user.getUsername(), user.getEmail()), user.getPassword(),
+					user.getUsername(), user.getEmail(), user.getRoles()), user.getPassword(),
 					ByteSource.Util.bytes(salt), getName());
 		} else {
 			return null;
@@ -72,11 +74,13 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		public Long id;
 		public String username;
 		public String email;
+		public String roles;
 
-		public ShiroUser(Long id, String username, String email) {
+		public ShiroUser(Long id, String username, String email, String roles) {
 			this.id = id;
 			this.username = username;
 			this.email = email;
+			this.roles = roles;
 		}
 
 		public String getUsername() {
@@ -85,6 +89,10 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		
 		public String getEmail() {
 			return email;
+		}
+		
+		public String getRoles() {
+			return roles;
 		}
 
 		@Override

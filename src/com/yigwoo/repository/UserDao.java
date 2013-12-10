@@ -1,6 +1,9 @@
 package com.yigwoo.repository;
 
+import java.util.List;
+
 import org.springframework.data.repository.Repository;
+
 import com.yigwoo.entity.User;
 
 /**
@@ -14,7 +17,11 @@ import com.yigwoo.entity.User;
 
 public interface UserDao extends Repository<User, Long> {
 	public User save(User user);
+	public void delete(User user);
+	public void delete(Long id);
 	public User findOne(Long id);
+	public List<User> findAll();
+	public List<User> findByRoles(String roles);
 	public User findByUsername(String username);
 	public User findByEmail(String email);
 }

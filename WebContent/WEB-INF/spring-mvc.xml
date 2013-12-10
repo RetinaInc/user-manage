@@ -43,12 +43,4 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 
-	<bean
-		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
-		<property name="exceptionMappings">
-			<props>
-				<prop key="java.lang.Throwable">error500</prop>
-			</props>
-		</property>
-	</bean>
 </beans>

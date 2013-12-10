@@ -13,7 +13,7 @@ public class LoginController {
 
 	@RequestMapping(method = RequestMethod.GET)
 	public String login() {
-		return "login";
+		return "user/login";
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
@@ -22,6 +22,6 @@ public class LoginController {
 			Model model) {
 		model.addAttribute(FormAuthenticationFilter.DEFAULT_USERNAME_PARAM,
 				username);
-		return "login";
+		return "user/login";
 	}
 }

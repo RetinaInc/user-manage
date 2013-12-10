@@ -33,6 +33,9 @@ In order to access the database using java, you need Connector J(mysql-connector
  be contained in your project's classpath and WebContent/WEB-INF/lib, since the first one is used when your
  .java file is compiled into .class file, the second one is used when you actually running your application.
 
+**Warning: if you're going to execute resources/mysql_shema.sql, the sql is going to drop table mydb/users_table
+if it exists!**
+
 ### Set up the Tomcat
 To run the web application, you'll need to setup [Tomcat](http://tomcat.apache.org/index.html), **DON'T** use
  Tomcat8, since the current edition of eclipse doesn't support Tomcat8 yet.

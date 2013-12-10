@@ -25,6 +25,7 @@ import com.yigwoo.service.AccountService;
 @Controller
 @RequestMapping(value = "/register")
 public class RegisterController {
+	private static final String USER_ROLE = "user";
 	private Logger logger = LoggerFactory.getLogger("com.yigwoo.web.RegisterController");
 	
 	@Autowired
@@ -32,13 +33,13 @@ public class RegisterController {
 	
 	@RequestMapping(method = RequestMethod.GET)
 	public String registerForm() {
-		return "register";
+		return "user/register";
 	}
 	
 	@RequestMapping(method = RequestMethod.POST) 
 	public String register(@Valid User user,
 			RedirectAttributes redirectAttributes) {
-		accountService.registerUser(user);
+		accountService.registerUser(user,USER_ROLE);
 		redirectAttributes.addFlashAttribute("username", user.getUsername());
 		logger.info("New user {} with email address {} registered", user.getUsername(), user.getEmail());
 		return "redirect:/login";

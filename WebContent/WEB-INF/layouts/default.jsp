@@ -15,6 +15,7 @@
 <link href="${ctx}/static/jquery/validate.css" type="text/css" rel="stylesheet"/>
 <script  src="${ctx}/static/jquery/jquery-1.9.1.min.js" type="text/javascript"></script>
 <script src="${ctx}/static/jquery-validation/jquery.validate.min.js" type="text/javascript"></script>
+<script src="${ctx}/static/jquery-validation/extend.js" type="text/javascript"></script>
 
 <sitemesh:head/>
 </head>
