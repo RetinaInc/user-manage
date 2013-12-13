@@ -29,7 +29,11 @@
 			</tr>
 			<tr>
 				<td>Roles</td>
-				<td><c:out value="${user.roles}" /></td>
+				<td>
+				<c:forEach var="role" items="${user.roles}">
+				    ${role}<br>
+				</c:forEach>
+				</td>
 			</tr>
 		</table>
 	</div>

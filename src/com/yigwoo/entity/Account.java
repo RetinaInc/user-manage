@@ -1,7 +1,6 @@
 package com.yigwoo.entity;
 
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,33 +9,30 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
 
-import com.google.common.collect.ImmutableList;
 
 /**
- * Persistence entity, corresponds to 'users_table'
+ * Persistence entity, corresponds to 'account'
  * @author YigWoo
  *
  */
 @Entity
-@Table(name="users_table")
-public class User {
+@Table(name="account")
+public class Account {
 	
 	private Long id;
 	private String username;
 	private String email;
 	private String password;
 	private String salt;
-	private String roles;
 	private Date registerDate;
 	private String plainPassword;
 	
-	public User() {}
+	public Account() {}
 	
-	public User(Long id) {
+	public Account(Long id) {
 		this.id = id;
 	}
 	
@@ -63,15 +59,6 @@ public class User {
 
 	public Date getRegisterDate() {
 		return registerDate;
-	}
-
-	public String getRoles() {
-		return roles;
-	}
-	
-	@Transient
-	public List<String> getRolesList() {
-		return ImmutableList.copyOf(StringUtils.split(roles, ","));
 	}
 	
 	public String getSalt() {
@@ -103,10 +90,6 @@ public class User {
 		this.registerDate = registerDate;
 	}
 	
-	public void setRoles(String roles) {
-		this.roles = roles;
-	}
-
 	public void setSalt(String salt) {
 		this.salt = salt;
 	}

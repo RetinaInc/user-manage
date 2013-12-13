@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.yigwoo.entity.User;
+import com.yigwoo.entity.Account;
 import com.yigwoo.service.AccountService;
 
 /**
@@ -25,7 +25,6 @@ import com.yigwoo.service.AccountService;
 @Controller
 @RequestMapping(value = "/register")
 public class RegisterController {
-	private static final String USER_ROLE = "user";
 	private Logger logger = LoggerFactory.getLogger("com.yigwoo.web.RegisterController");
 	
 	@Autowired
@@ -37,11 +36,11 @@ public class RegisterController {
 	}
 	
 	@RequestMapping(method = RequestMethod.POST) 
-	public String register(@Valid User user,
+	public String register(@Valid Account account,
 			RedirectAttributes redirectAttributes) {
-		accountService.registerUser(user,USER_ROLE);
-		redirectAttributes.addFlashAttribute("username", user.getUsername());
-		logger.info("New user {} with email address {} registered", user.getUsername(), user.getEmail());
+		accountService.registerCommonUserAccount(account);
+		redirectAttributes.addFlashAttribute("username", account.getUsername());
+		logger.info("New user {} with email address {} registered", account.getUsername(), account.getEmail());
 		return "redirect:/login";
 	}
 	
@@ -51,7 +50,7 @@ public class RegisterController {
 	@RequestMapping(value="checkUsername")
 	@ResponseBody
 	public String checkUsername(@RequestParam("username") String username) {
-		if (accountService.findUserByUsername(username) == null) {
+		if (accountService.findAccountByUsername(username) == null) {
 			return "true";
 		} else {
 			return "false";
@@ -64,7 +63,7 @@ public class RegisterController {
 	@RequestMapping(value="checkEmail")
 	@ResponseBody
 	public String checkEmail(@RequestParam("email") String email) {
-		if (accountService.findUserByEmail(email) == null) {
+		if (accountService.findAccountByEmail(email) == null) {
 			return "true";
 		} else {
 			return "false";

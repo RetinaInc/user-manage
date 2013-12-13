@@ -11,12 +11,9 @@
 		<ul class="nav nav-pills nav-justified">
 			<li><a href="${ctx}/profile"><shiro:principal />'s Profile</a></li>
 			<li><a href="${ctx}/profile/edit">Edit Profile</a></li>
-			<shiro:hasAnyRoles name="admin, superuser">
+			<shiro:hasAnyRoles name="admin, super admin">
 				<li><a href="${ctx}/manage/users">Manage Users</a></li>
 			</shiro:hasAnyRoles>
-			<shiro:hasRole name="superuser">
-                <li><a href="${ctx}/manage/admins">Manage Administrators</a></li>
-			</shiro:hasRole>
 			<li><a href="${ctx}/logout">Logout</a></li>
 		</ul>
 	</shiro:user>

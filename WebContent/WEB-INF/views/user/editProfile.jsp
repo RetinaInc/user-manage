@@ -11,15 +11,15 @@
 	<fieldset>
 		<legend>
 			<small>Edit Profile</small>
-			<small>${user.username }</small>
+			<small>${account.username }</small>
 		</legend>
 		<form id="editForm" action="${ctx}/profile/edit" method="post"
 			class="form-horizontal">
-			<input type="hidden" id="username" name="username" value="${user.username}"/>
+			<input type="hidden" id="username" name="username" value="${account.username}"/>
 			<div class="control-group">
 				<label for="email" class="control-label"}">Email:</label>
 				<div class="controls">
-					<input type="email" id="email" name="email" value="${user.email}"
+					<input type="email" id="email" name="email" value="${account.email}"
 						class="input-large required" />
 				</div>
 			</div>
