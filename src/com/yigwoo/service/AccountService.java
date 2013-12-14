@@ -8,6 +8,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -182,5 +188,53 @@ public class AccountService {
 			users.add(shiroUser);
 		}
 		return users;
+	}
+
+	public Page<ShiroUser> findAllShiroUsers(int pageNumber, int pageSize,
+			String sortColumn, String sortDirection) {
+		PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,
+				sortColumn, sortDirection);
+		Page<Account> accountPage = accountDao.findAll(pageRequest);
+		Page<ShiroUser> users = buildShiroUserPage(accountPage, pageRequest);
+		return users;
+	}
+
+	public Page<Account> findAllByPage(Pageable pageable) {
+		return accountDao.findAll(pageable);
+	}
+
+	private Page<ShiroUser> buildShiroUserPage(Page<Account> accountPage,
+			Pageable pageable) {
+		List<Account> accountList = accountPage.getContent();
+		List<ShiroUser> shiroUserList = new ArrayList<ShiroUser>();
+		for (Account account : accountList) {
+			List<AccountToRole> accountToRoleList = accountToRoleDao
+					.findByAccountId(account.getId());
+			List<String> roleList = new ArrayList<String>();
+			for (AccountToRole accountToRole : accountToRoleList) {
+				String role = accountToRole.getRole().getRolename();
+				roleList.add(role);
+			}
+			ShiroUser shiroUser = new ShiroUser(account.getId(),
+					account.getUsername(), account.getEmail(), roleList,
+					account.getRegisterDate());
+			shiroUserList.add(shiroUser);
+		}
+		Page<ShiroUser> shiroUserPage = new PageImpl<ShiroUser>(shiroUserList,
+				pageable, accountPage.getTotalElements());
+		return shiroUserPage;
+	}
+
+	private PageRequest buildPageRequest(int pageNumber, int pageSize,
+			String sortColumn, String sortDirection) {
+		Sort sort = null;
+		Direction direction = null;
+		if (sortDirection.equals("ASC")) {
+			direction = Direction.ASC;
+		} else if (sortDirection.equals("DESC")) {
+			direction = Direction.DESC;
+		}
+		sort = new Sort(direction, sortColumn);
+		return new PageRequest(pageNumber - 1, pageSize, sort);
 	}
 }

@@ -9,6 +9,9 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -43,12 +46,13 @@ public class AccountManagementController {
 	public static final String MANAGE_CREATE_USER = "manage/createUser";
 	public static final String MANAGE_EDIT_USER = "manage/editUser";
 
-	private static final Map<String, String> userTypes = Maps.newLinkedHashMap();
+	private static final Map<String, String> userTypes = Maps
+			.newLinkedHashMap();
 	static {
 		userTypes.put("common user", COMMON_USER);
 		userTypes.put("admin", ADMIN);
 	}
-	
+
 	private Logger logger = LoggerFactory
 			.getLogger(AccountManagementController.class);
 
@@ -57,10 +61,20 @@ public class AccountManagementController {
 
 	@RequiresRoles("admin")
 	@RequestMapping(value = "users", method = RequestMethod.GET)
-	public String getAllCommonUsersList(Model model) {
-		List<ShiroUser> users = accountService
-				.findShiroUsersByRole(COMMON_USER);
+	public String getAllUsersList(
+			@RequestParam(value = "page", defaultValue = "1") int pageNumber,
+			@RequestParam(value = "page.size", defaultValue = "5") int pageSize,
+			@RequestParam(value = "sortColumn", defaultValue = "id") String sortColumn,
+			@RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+			Model model) {
+		// List<ShiroUser> users = accountService
+		// .findShiroUsersByRole(COMMON_USER);
+		Page<ShiroUser> users = accountService.findAllShiroUsers(pageNumber,
+				pageSize, sortColumn, sortDirection);
+		logUsers(users);
 		model.addAttribute("users", users);
+		model.addAttribute("sortColumn", sortColumn);
+		model.addAttribute("sortDirection", sortDirection);
 		return MANAGE_USERS_LIST;
 	}
 
@@ -71,6 +85,15 @@ public class AccountManagementController {
 	 * // model.addAttribute("admins", admins); return MANAGE_ADMINS_LIST; }
 	 * else { return UNAUTHORIZED; } }
 	 */
+
+	private void logUsers(Page<ShiroUser> users) {
+		for (int i = 0; i < users.getContent().size(); i++)
+			logger.debug("ShiroUser: {}", users.getContent().get(i).username);
+		logger.debug(
+				"Total:{}, Number:{}, Size:{}, Sort:{}, TotalPages:{}, isFirst:{}",
+				users.getTotalElements(), users.getNumber(), users.getSize(),
+				users.getSort(), users.getTotalPages(), users.isFirstPage());
+	}
 
 	@RequiresRoles("super admin")
 	@RequestMapping(value = "users/create", method = RequestMethod.GET)
@@ -113,10 +136,11 @@ public class AccountManagementController {
 			RedirectAttributes redirectAttributes) {
 		boolean isDeleted = accountService.deleteAccount(id);
 		String message;
-		if (isDeleted) message = "Successfully delete a user";
-		else message = "Cannot Delete Super Admin";
-		redirectAttributes.addFlashAttribute("message",
-				message);
+		if (isDeleted)
+			message = "Successfully delete a user";
+		else
+			message = "Cannot Delete Super Admin";
+		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:/manage/users";
 	}
 

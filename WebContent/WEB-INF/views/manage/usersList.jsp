@@ -3,6 +3,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 
 <html>
@@ -26,18 +27,18 @@
 		class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>
-				<th>Id</th>
-				<th>Username</th>
-				<th>Email</th>
+				<th class="sortable">Id</th>
+				<th class="sortable">Username</th>
+				<th class="sortable">Email</th>
 				<th>Roles</th>
-				<th>Register Date</th>
+				<th id="registerDate">Register Date</th>
 				<shiro:hasRole name="super admin">
 					<th>Admin</th>
 				</shiro:hasRole>
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach items="${users}" var="user">
+			<c:forEach items="${users.content}" var="user">
 				<tr>
 					<td>${user.id}</td>
 					<td>${user.username }</td>
@@ -55,5 +56,23 @@
 			</c:forEach>
 		</tbody>
 	</table>
+
+	<tags:pagination paginationSize="5" page="${users}"></tags:pagination>
+
+	<script type="text/javascript">
+		$(".sortable").click(
+				function() {
+					var sortColumn = $(this).text().toLowerCase();
+					var page = "${users.getNumber()+1}";
+					var direction = "${sortDirection}";
+					if (sortColumn === "${sortColumn}") {
+						if (direction === "ASC") direction = "DESC";
+						else direction = "ASC";
+					}
+						
+					window.location.href = "?page=" + page
+							+ "&sortColumn=" + sortColumn + "&sortDirection=" + direction;
+				});
+	</script>
 </body>
 </html>

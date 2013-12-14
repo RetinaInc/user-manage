@@ -2,6 +2,9 @@ package com.yigwoo.repository;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.Repository;
 
 import com.yigwoo.entity.Account;
@@ -15,7 +18,7 @@ import com.yigwoo.entity.Account;
  *
  */
 
-public interface AccountDao extends Repository<Account, Long> {
+public interface AccountDao extends JpaRepository<Account, Long> {
 	public Account save(Account account);
 	public void delete(Account account);
 	public void delete(Long id);
