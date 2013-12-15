@@ -1,1 +1,7 @@
-/build
+# Eclipse project files
+.classpath
+.project
+
+# Others
+target/
+logs/
