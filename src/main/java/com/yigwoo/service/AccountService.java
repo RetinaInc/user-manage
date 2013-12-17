@@ -2,7 +2,9 @@ package com.yigwoo.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -18,10 +20,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yigwoo.entity.Account;
-import com.yigwoo.entity.AccountToRole;
 import com.yigwoo.entity.Role;
 import com.yigwoo.repository.AccountDao;
-import com.yigwoo.repository.AccountToRoleDao;
 import com.yigwoo.repository.RoleDao;
 import com.yigwoo.service.ShiroDbRealm.ShiroUser;
 import com.yigwoo.util.DateProvider;
@@ -56,7 +56,105 @@ public class AccountService {
 	private DateProvider dateProvider = DateProvider.DATE_PROVIDER;
 	private AccountDao accountDao;
 	private RoleDao roleDao;
-	private AccountToRoleDao accountToRoleDao;
+
+	private PageRequest buildPageRequest(int pageNumber, int pageSize,
+			String sortColumn, String sortDirection) {
+		Sort sort = null;
+		Direction direction = null;
+		if (sortDirection.equals("ASC")) {
+			direction = Direction.ASC;
+		} else if (sortDirection.equals("DESC")) {
+			direction = Direction.DESC;
+		}
+		sort = new Sort(direction, sortColumn);
+		return new PageRequest(pageNumber - 1, pageSize, sort);
+	}
+
+	private Page<ShiroUser> buildShiroUserPage(Page<Account> accountPage,
+			Pageable pageable) {
+		List<Account> accountList = accountPage.getContent();
+		List<ShiroUser> shiroUserList = new ArrayList<ShiroUser>();
+		for (Account account : accountList) {
+			Set<Role> roles = account.getRoles();
+			List<String> roleList = new ArrayList<String>();
+			for (Role role : roles) {
+				roleList.add(role.getRolename());
+			}
+			ShiroUser shiroUser = new ShiroUser(account.getId(),
+					account.getUsername(), account.getEmail(), roleList,
+					account.getRegisterDate());
+			shiroUserList.add(shiroUser);
+		}
+		Page<ShiroUser> shiroUserPage = new PageImpl<ShiroUser>(shiroUserList,
+				pageable, accountPage.getTotalElements());
+		return shiroUserPage;
+	}
+
+	public void deleteAccount(Long id) {
+		if (id == 1) {
+			throw new ServiceException("Cannot Delete A Superuser Account");
+		} else {
+			accountDao.delete(id);
+		}
+	}
+
+	private void encryptPassword(Account account) {
+		byte[] salt = Digests.generateSalt(SALT_SIZE);
+		account.setSalt(Encodes.encodeHex(salt));
+		byte[] hashedPassword = Digests.sha1(account.getPlainPassword()
+				.getBytes(), salt, HASH_ITERATION_COUNT);
+		account.setPassword(Encodes.encodeHex(hashedPassword));
+	}
+
+	public Account findAccount(Long id) {
+		return accountDao.findOne(id);
+	}
+
+	public Account findAccountByEmail(String email) {
+		return accountDao.findByEmail(email);
+	}
+
+	public Account findAccountByUsername(String username) {
+		/* Since account.getRoles() use LAZY fetch strategy,
+		 * and AccountService is @Transactional
+		 * we must set the roles to the account now.
+		 * Or the account's roles would be empty!
+		 */
+		Account account = accountDao.findByUsername(username);
+		Set<Role> roles = account.getRoles();
+		logger.debug("roles {}", roles.size());
+		account.setRoles(roles);
+		return account;
+	}
+
+	public Page<ShiroUser> findAllShiroUsers(int pageNumber, int pageSize,
+			String sortColumn, String sortDirection) {
+		PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,
+				sortColumn, sortDirection);
+		Page<Account> accountPage = accountDao.findAll(pageRequest);
+		Page<ShiroUser> users = buildShiroUserPage(accountPage, pageRequest);
+		return users;
+	}
+
+	public void registerAccount(Account account, List<String> roleList) {
+		encryptPassword(account);
+		account.setRegisterDate(dateProvider.getDate());
+		Set<Role> roles = new HashSet<Role>(0);
+		for (String rolename : roleList) {
+			Role role = roleDao.findByRolename(rolename);
+			roles.add(role);
+		}
+		account.setRoles(roles);
+		accountDao.save(account);
+	}
+
+	public void registerAdminAccount(Account account) {
+		registerAccount(account, ADMIN_ROLES);
+	}
+
+	public void registerCommonUserAccount(Account account) {
+		registerAccount(account, COMMON_USER_ROLES);
+	}
 
 	@Autowired
 	public void setAccountDao(AccountDao accountDao) {
@@ -68,79 +166,11 @@ public class AccountService {
 		this.roleDao = roleDao;
 	}
 
-	@Autowired
-	public void setAccountToRoleDao(AccountToRoleDao accountToRoleDao) {
-		this.accountToRoleDao = accountToRoleDao;
-	}
-
-	public List<String> findAccountRoles(Account account) {
-		List<String> roles = new ArrayList<String>();
-		List<AccountToRole> accountToRoles = accountToRoleDao
-				.findByAccountId(account.getId());
-		for (AccountToRole accountToRole : accountToRoles) {
-			roles.add(accountToRole.getRole().getRolename());
-		}
-		return roles;
-	}
-
-	public Account findAccount(Long id) {
-		return accountDao.findOne(id);
-	}
-
-	public Account findAccountByUsername(String username) {
-		return accountDao.findByUsername(username);
-	}
-
-	public Account findAccountByEmail(String email) {
-		return accountDao.findByEmail(email);
-	}
-
-	public List<Account> findAllAccounts() {
-		return accountDao.findAll();
-	}
-
 	public void updateAccount(Account account) {
 		if (StringUtils.isNotBlank(account.getPlainPassword())) {
 			encryptPassword(account);
 		}
 		accountDao.save(account);
-	}
-
-	public boolean deleteAccount(Long id) {
-		/**
-		 * The order of deleting the `account` and the `account_to_role` is
-		 * important. Since if you delete `account` first, in account_to_role
-		 * table, the entry couldn't find the corresponding reference to the
-		 * `account`. So, before you delete the `account`, delete the
-		 * corresponding `account_to_role`s first.
-		 */
-		if (id == 1) {
-			return false;
-		} else {
-			logger.debug("{}", id);
-			List<AccountToRole> accountToRoles = accountToRoleDao
-					.findByAccountId(id);
-			logger.debug("{}", accountToRoles.size());
-			for (AccountToRole accountToRole : accountToRoles) {
-				logger.debug("{}", accountToRole.getId());
-				accountToRoleDao.delete(accountToRole);
-			}
-			accountDao.delete(id);
-			return true;
-		}
-	}
-
-	public void registerAccount(Account account, List<String> roles) {
-		encryptPassword(account);
-		account.setRegisterDate(dateProvider.getDate());
-		accountDao.save(account);
-		for (String rolename : roles) {
-			Role role = roleDao.findByRolename(rolename);
-			AccountToRole accountToRole = new AccountToRole();
-			accountToRole.setAccount(account);
-			accountToRole.setRole(role);
-			accountToRoleDao.save(accountToRole);
-		}
 	}
 
 	public Account updateAccountProfile(Account accountModel) {
@@ -157,84 +187,5 @@ public class AccountService {
 		account.setPlainPassword(accountModel.getPlainPassword());
 		updateAccount(account);
 		return account;
-	}
-
-	private void encryptPassword(Account account) {
-		byte[] salt = Digests.generateSalt(SALT_SIZE);
-		account.setSalt(Encodes.encodeHex(salt));
-		byte[] hashedPassword = Digests.sha1(account.getPlainPassword()
-				.getBytes(), salt, HASH_ITERATION_COUNT);
-		account.setPassword(Encodes.encodeHex(hashedPassword));
-	}
-
-	public void registerCommonUserAccount(Account account) {
-		registerAccount(account, COMMON_USER_ROLES);
-	}
-
-	public void registerAdminAccount(Account account) {
-		registerAccount(account, ADMIN_ROLES);
-	}
-
-	public List<ShiroUser> findShiroUsersByRole(String rolename) {
-		Long id = roleDao.findByRolename(rolename).getId();
-		logger.debug("find shiro users by role id {}", id);
-		List<AccountToRole> accountToRoles = accountToRoleDao.findByRoleId(id);
-		List<ShiroUser> users = new ArrayList<ShiroUser>();
-		for (AccountToRole accountToRole : accountToRoles) {
-			Account account = accountToRole.getAccount();
-			ShiroUser shiroUser = new ShiroUser(account.getId(),
-					account.getUsername(), account.getEmail(),
-					findAccountRoles(account), account.getRegisterDate());
-			users.add(shiroUser);
-		}
-		return users;
-	}
-
-	public Page<ShiroUser> findAllShiroUsers(int pageNumber, int pageSize,
-			String sortColumn, String sortDirection) {
-		PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,
-				sortColumn, sortDirection);
-		Page<Account> accountPage = accountDao.findAll(pageRequest);
-		Page<ShiroUser> users = buildShiroUserPage(accountPage, pageRequest);
-		return users;
-	}
-
-	public Page<Account> findAllByPage(Pageable pageable) {
-		return accountDao.findAll(pageable);
-	}
-
-	private Page<ShiroUser> buildShiroUserPage(Page<Account> accountPage,
-			Pageable pageable) {
-		List<Account> accountList = accountPage.getContent();
-		List<ShiroUser> shiroUserList = new ArrayList<ShiroUser>();
-		for (Account account : accountList) {
-			List<AccountToRole> accountToRoleList = accountToRoleDao
-					.findByAccountId(account.getId());
-			List<String> roleList = new ArrayList<String>();
-			for (AccountToRole accountToRole : accountToRoleList) {
-				String role = accountToRole.getRole().getRolename();
-				roleList.add(role);
-			}
-			ShiroUser shiroUser = new ShiroUser(account.getId(),
-					account.getUsername(), account.getEmail(), roleList,
-					account.getRegisterDate());
-			shiroUserList.add(shiroUser);
-		}
-		Page<ShiroUser> shiroUserPage = new PageImpl<ShiroUser>(shiroUserList,
-				pageable, accountPage.getTotalElements());
-		return shiroUserPage;
-	}
-
-	private PageRequest buildPageRequest(int pageNumber, int pageSize,
-			String sortColumn, String sortDirection) {
-		Sort sort = null;
-		Direction direction = null;
-		if (sortDirection.equals("ASC")) {
-			direction = Direction.ASC;
-		} else if (sortDirection.equals("DESC")) {
-			direction = Direction.DESC;
-		}
-		sort = new Sort(direction, sortColumn);
-		return new PageRequest(pageNumber - 1, pageSize, sort);
 	}
 }

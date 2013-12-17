@@ -1,6 +1,5 @@
 package com.yigwoo.web;
 
-import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -10,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -67,25 +64,16 @@ public class AccountManagementController {
 			@RequestParam(value = "sortColumn", defaultValue = "id") String sortColumn,
 			@RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
 			Model model) {
-		// List<ShiroUser> users = accountService
-		// .findShiroUsersByRole(COMMON_USER);
 		Page<ShiroUser> users = accountService.findAllShiroUsers(pageNumber,
 				pageSize, sortColumn, sortDirection);
-		logUsers(users);
+		// logUsers(users);
 		model.addAttribute("users", users);
 		model.addAttribute("sortColumn", sortColumn);
 		model.addAttribute("sortDirection", sortDirection);
 		return MANAGE_USERS_LIST;
 	}
 
-	/*
-	 * @RequestMapping(value = "admins", method = RequestMethod.GET) public
-	 * String getAllAdminsList(Model model) { if (isAuthorizedAsSuperuser()) {
-	 * // List<Account> admins = // accountService.findAccountByRoles("admin");
-	 * // model.addAttribute("admins", admins); return MANAGE_ADMINS_LIST; }
-	 * else { return UNAUTHORIZED; } }
-	 */
-
+	@SuppressWarnings("unused")
 	private void logUsers(Page<ShiroUser> users) {
 		for (int i = 0; i < users.getContent().size(); i++)
 			logger.debug("ShiroUser: {}", users.getContent().get(i).username);
@@ -134,44 +122,11 @@ public class AccountManagementController {
 	@RequestMapping(value = "users/delete/{id}")
 	public String deleteUser(@PathVariable("id") Long id,
 			RedirectAttributes redirectAttributes) {
-		boolean isDeleted = accountService.deleteAccount(id);
-		String message;
-		if (isDeleted)
-			message = "Successfully delete a user";
-		else
-			message = "Cannot Delete Super Admin";
+		accountService.deleteAccount(id);
+		String message = "Successfully delete a user";
 		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:/manage/users";
 	}
-
-	/*
-	 * @RequestMapping(value = "admins/edit/{id}", method = RequestMethod.GET)
-	 * public String editAdmin(@PathVariable("id") Long id, Model model) { if
-	 * (isAuthorizedAsSuperuser()) { Account account =
-	 * accountService.findAccount(id); model.addAttribute("user", account);
-	 * return MANAGE_EDIT_ADMIN; } else { return UNAUTHORIZED; } }
-	 * 
-	 * @RequestMapping(value = "admins/edit", method = RequestMethod.POST)
-	 * public String editAdmin(
-	 * 
-	 * @Valid @ModelAttribute("user") Account accountModel, RedirectAttributes
-	 * redirectAttributes) { if (isAuthorizedAsSuperuser()) { Account account =
-	 * accountService.findAccountByUsername(accountModel .getUsername());
-	 * account.setEmail(accountModel.getEmail());
-	 * account.setPlainPassword(accountModel.getPlainPassword());
-	 * accountService.updateAccount(account);
-	 * redirectAttributes.addFlashAttribute("message",
-	 * "Admin information updated."); return "redirect:/manage/admins"; } else {
-	 * return UNAUTHORIZED; } }
-	 * 
-	 * @RequestMapping(value = "admins/delete/{id}") public String
-	 * deleteAdmin(@PathVariable("id") Long id, RedirectAttributes
-	 * redirectAttributes) { Account account = accountService.findAccount(id);
-	 * if (isAuthorizedAsSuperuser()) { accountService.deleteAccount(id);
-	 * redirectAttributes.addFlashAttribute("message",
-	 * "Successfully delete a user"); return "redirect:/manage/admins"; } else {
-	 * return UNAUTHORIZED; } }
-	 */
 
 	@RequestMapping(value = "checkEmail/{id}")
 	@ResponseBody

@@ -12,7 +12,7 @@
 	</bean>
 
 	<bean id="shiroDbRealm" class="com.yigwoo.service.ShiroDbRealm"
-		depends-on="accountDao, roleDao, accountToRoleDao">
+		depends-on="accountDao, roleDao">
 		<property name="accountService" ref="accountService" />
 	</bean>
 

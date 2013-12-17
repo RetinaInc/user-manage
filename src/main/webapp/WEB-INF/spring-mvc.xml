@@ -43,4 +43,13 @@
 		<property name="suffix" value=".jsp" />
 	</bean>
 
+	<bean
+		class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+			    <prop key="com.yigwoo.service.ServiceException">error/exception</prop>
+				<prop key="java.lang.Exception">error/500</prop>
+			</props>
+		</property>
+	</bean>
 </beans>
