@@ -1,4 +1,4 @@
-package com.yigwoo.util;
+package com.yigwoo.simple.util;
 
 import java.util.Date;
 

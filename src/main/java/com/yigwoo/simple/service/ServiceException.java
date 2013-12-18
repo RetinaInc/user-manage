@@ -1,4 +1,4 @@
-package com.yigwoo.service;
+package com.yigwoo.simple.service;
 
 public class ServiceException extends RuntimeException {
 	

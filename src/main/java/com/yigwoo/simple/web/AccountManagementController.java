@@ -1,4 +1,4 @@
-package com.yigwoo.web;
+package com.yigwoo.simple.web;
 
 import java.util.Map;
 
@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.google.common.collect.Maps;
-import com.yigwoo.entity.Account;
-import com.yigwoo.service.AccountService;
-import com.yigwoo.service.ShiroDbRealm.ShiroUser;
+import com.yigwoo.simple.domain.Account;
+import com.yigwoo.simple.service.AccountService;
+import com.yigwoo.simple.service.ShiroDbRealm.ShiroUser;
 
 /**
  * Administration Controller. 'superuser' could see all users(include
@@ -95,7 +95,7 @@ public class AccountManagementController {
 	public String createUser(@Valid Account account,
 			RedirectAttributes redirectAttributes) {
 		logger.info("New Admin {} created", account.getUsername());
-		accountService.registerAdminAccount(account);
+		accountService.createAdminAccount(account);
 		redirectAttributes.addFlashAttribute("message",
 				"Successfully create a new admin");
 		return "redirect:/manage/users";
@@ -103,8 +103,8 @@ public class AccountManagementController {
 
 	@RequiresRoles("super admin")
 	@RequestMapping(value = "users/edit/{id}", method = RequestMethod.GET)
-	public String editUser(@PathVariable("id") Long id, Model model) {
-		model.addAttribute("user", accountService.findAccount(id));
+	public String editUser(@PathVariable("id") int id, Model model) {
+		model.addAttribute("user", accountService.getAccount(id));
 		return MANAGE_EDIT_USER;
 	}
 
@@ -112,7 +112,7 @@ public class AccountManagementController {
 	@RequestMapping(value = "users/edit", method = RequestMethod.POST)
 	public String editUser(@Valid @ModelAttribute("user") Account accountModel,
 			RedirectAttributes redirectAttributes) {
-		accountService.updateAccountProfile(accountModel);
+		accountService.updateAccount(accountModel);
 		redirectAttributes.addFlashAttribute("message",
 				"User information updated.");
 		return "redirect:/manage/users";
@@ -120,7 +120,7 @@ public class AccountManagementController {
 
 	@RequiresRoles("super admin")
 	@RequestMapping(value = "users/delete/{id}")
-	public String deleteUser(@PathVariable("id") Long id,
+	public String deleteUser(@PathVariable("id") int id,
 			RedirectAttributes redirectAttributes) {
 		accountService.deleteAccount(id);
 		String message = "Successfully delete a user";
@@ -131,10 +131,10 @@ public class AccountManagementController {
 	@RequestMapping(value = "checkEmail/{id}")
 	@ResponseBody
 	public String checkEmail(@RequestParam("email") String email,
-			@PathVariable("id") Long id) {
+			@PathVariable("id") int id) {
 		// logger.debug("{} {}", email, id);
-		Account account = accountService.findAccountByEmail(email);
-		if (account.getId().equals(id)) {
+		Account account = accountService.getAccountByEmail(email);
+		if (account.getId() == id) {
 			return "true";
 		} else {
 			return "false";

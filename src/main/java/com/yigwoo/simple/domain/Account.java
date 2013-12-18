@@ -1,20 +1,8 @@
-package com.yigwoo.entity;
+package com.yigwoo.simple.domain;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import java.util.List;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
@@ -25,24 +13,18 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author YigWoo
  * 
  */
-@Entity
-@Table(name = "account")
 public class Account {
 
-	private Long id;
+	private int id;
 	private String username;
 	private String email;
 	private String password;
 	private String salt;
 	private Date registerDate;
 	private String plainPassword;
-	private Set<Role> roles = new HashSet<Role>(0);
+	private List<Role> roles = new ArrayList<Role>();
 
 	public Account() {
-	}
-
-	public Account(Long id) {
-		this.id = id;
 	}
 
 	@NotBlank
@@ -51,9 +33,7 @@ public class Account {
 		return email;
 	}
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -61,7 +41,6 @@ public class Account {
 		return password;
 	}
 
-	@Transient
 	public String getPlainPassword() {
 		return plainPassword;
 	}
@@ -83,7 +62,7 @@ public class Account {
 		this.email = email;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -107,17 +86,11 @@ public class Account {
 		this.username = username;
 	}
 
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
-			name = "ACCOUNT_ROLE",
-			joinColumns = {@JoinColumn(name = "account_id", referencedColumnName="id")},
-			inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName="id")}
-			)
-	public Set<Role> getRoles() {
+	public List<Role> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(Set<Role> roles) {
+	public void setRoles(List<Role> roles) {
 		this.roles = roles;
 	}
 }

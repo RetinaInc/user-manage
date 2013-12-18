@@ -11,8 +11,8 @@
 		<property name="cacheManager" ref="shiroEhcacheManager" />
 	</bean>
 
-	<bean id="shiroDbRealm" class="com.yigwoo.service.ShiroDbRealm"
-		depends-on="accountDao, roleDao">
+	<bean id="shiroDbRealm" class="com.yigwoo.simple.service.ShiroDbRealm"
+		depends-on="accountMapper, roleMapper">
 		<property name="accountService" ref="accountService" />
 	</bean>
 

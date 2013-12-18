@@ -1,4 +1,4 @@
-package com.yigwoo.web;
+package com.yigwoo.simple.web;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

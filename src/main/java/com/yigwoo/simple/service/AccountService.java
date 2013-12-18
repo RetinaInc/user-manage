@@ -1,10 +1,8 @@
-package com.yigwoo.service;
+package com.yigwoo.simple.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -19,14 +17,14 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yigwoo.entity.Account;
-import com.yigwoo.entity.Role;
-import com.yigwoo.repository.AccountDao;
-import com.yigwoo.repository.RoleDao;
-import com.yigwoo.service.ShiroDbRealm.ShiroUser;
-import com.yigwoo.util.DateProvider;
-import com.yigwoo.util.Digests;
-import com.yigwoo.util.Encodes;
+import com.yigwoo.simple.domain.Account;
+import com.yigwoo.simple.domain.Role;
+import com.yigwoo.simple.persistence.AccountMapper;
+import com.yigwoo.simple.persistence.RoleMapper;
+import com.yigwoo.simple.service.ShiroDbRealm.ShiroUser;
+import com.yigwoo.simple.util.DateProvider;
+import com.yigwoo.simple.util.Digests;
+import com.yigwoo.simple.util.Encodes;
 
 /**
  * This a class which utilize UserDao to provide services that the logging and
@@ -54,8 +52,8 @@ public class AccountService {
 	private static Logger logger = LoggerFactory
 			.getLogger(AccountService.class);
 	private DateProvider dateProvider = DateProvider.DATE_PROVIDER;
-	private AccountDao accountDao;
-	private RoleDao roleDao;
+	private AccountMapper accountMapper;
+	private RoleMapper roleMapper;
 
 	private PageRequest buildPageRequest(int pageNumber, int pageSize,
 			String sortColumn, String sortDirection) {
@@ -75,7 +73,7 @@ public class AccountService {
 		List<Account> accountList = accountPage.getContent();
 		List<ShiroUser> shiroUserList = new ArrayList<ShiroUser>();
 		for (Account account : accountList) {
-			Set<Role> roles = account.getRoles();
+			List<Role> roles = account.getRoles();
 			List<String> roleList = new ArrayList<String>();
 			for (Role role : roles) {
 				roleList.add(role.getRolename());
@@ -90,11 +88,11 @@ public class AccountService {
 		return shiroUserPage;
 	}
 
-	public void deleteAccount(Long id) {
+	public void deleteAccount(int id) {
 		if (id == 1) {
 			throw new ServiceException("Cannot Delete A Superuser Account");
 		} else {
-			accountDao.delete(id);
+			accountMapper.deleteAccountById(id);
 		}
 	}
 
@@ -106,22 +104,22 @@ public class AccountService {
 		account.setPassword(Encodes.encodeHex(hashedPassword));
 	}
 
-	public Account findAccount(Long id) {
-		return accountDao.findOne(id);
+	public Account getAccount(int id) {
+		return accountMapper.getAccountById(id);
 	}
 
-	public Account findAccountByEmail(String email) {
-		return accountDao.findByEmail(email);
+	public Account getAccountByEmail(String email) {
+		return accountMapper.getAccountByEmail(email);
 	}
 
-	public Account findAccountByUsername(String username) {
+	public Account getAccountByUsername(String username) {
 		/* Since account.getRoles() use LAZY fetch strategy,
 		 * and AccountService is @Transactional
 		 * we must set the roles to the account now.
 		 * Or the account's roles would be empty!
 		 */
-		Account account = accountDao.findByUsername(username);
-		Set<Role> roles = account.getRoles();
+		Account account = accountMapper.getAccountByUsername(username);
+		List<Role> roles = account.getRoles();
 		logger.debug("roles {}", roles.size());
 		account.setRoles(roles);
 		return account;
@@ -129,51 +127,45 @@ public class AccountService {
 
 	public Page<ShiroUser> findAllShiroUsers(int pageNumber, int pageSize,
 			String sortColumn, String sortDirection) {
-		PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,
-				sortColumn, sortDirection);
-		Page<Account> accountPage = accountDao.findAll(pageRequest);
-		Page<ShiroUser> users = buildShiroUserPage(accountPage, pageRequest);
-		return users;
+		//PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,
+		//sortColumn, sortDirection);
+		//Page<Account> accountPage = accountMapper.findAll(pageRequest);
+		//Page<ShiroUser> users = buildShiroUserPage(accountPage, pageRequest);
+		//return users;
+		return null;
 	}
 
-	public void registerAccount(Account account, List<String> roleList) {
+	public void createAccount(Account account, List<String> roleList) {
 		encryptPassword(account);
 		account.setRegisterDate(dateProvider.getDate());
-		Set<Role> roles = new HashSet<Role>(0);
+		List<Role> roles = new ArrayList<Role>();
 		for (String rolename : roleList) {
-			Role role = roleDao.findByRolename(rolename);
-			roles.add(role);
+			//Role role = roleMapper.findByRolename(rolename);
+			//roles.add(role);
 		}
 		account.setRoles(roles);
-		accountDao.save(account);
+		accountMapper.insertAccount(account);
 	}
 
-	public void registerAdminAccount(Account account) {
-		registerAccount(account, ADMIN_ROLES);
+	public void createAdminAccount(Account account) {
+		createAccount(account, ADMIN_ROLES);
 	}
 
-	public void registerCommonUserAccount(Account account) {
-		registerAccount(account, COMMON_USER_ROLES);
-	}
-
-	@Autowired
-	public void setAccountDao(AccountDao accountDao) {
-		this.accountDao = accountDao;
+	public void createCommonUserAccount(Account account) {
+		createAccount(account, COMMON_USER_ROLES);
 	}
 
 	@Autowired
-	public void setRoleDao(RoleDao roleDao) {
-		this.roleDao = roleDao;
+	public void setAccountMapper(AccountMapper accountMapper) {
+		this.accountMapper = accountMapper;
 	}
 
-	public void updateAccount(Account account) {
-		if (StringUtils.isNotBlank(account.getPlainPassword())) {
-			encryptPassword(account);
-		}
-		accountDao.save(account);
+	@Autowired
+	public void setRoleMapper(RoleMapper roleMapper) {
+		this.roleMapper = roleMapper;
 	}
 
-	public Account updateAccountProfile(Account accountModel) {
+	public Account updateAccount(Account accountModel) {
 		/*
 		 * Since the the form in "editProfile" will generate a new Account
 		 * object, and the form just contains partial information of the old
@@ -182,10 +174,13 @@ public class AccountService {
 		 * old Account object, combine it with the new Account object, to form
 		 * the Account object we want to save!
 		 */
-		Account account = findAccountByUsername(accountModel.getUsername());
+		Account account = getAccountByUsername(accountModel.getUsername());
 		account.setEmail(accountModel.getEmail());
 		account.setPlainPassword(accountModel.getPlainPassword());
-		updateAccount(account);
+		if (StringUtils.isNotBlank(account.getPlainPassword())) {
+			encryptPassword(account);
+		}
+		accountMapper.updateAccount(account);
 		return account;
 	}
 }

@@ -21,40 +21,22 @@
 			expression="org.springframework.web.bind.annotation.ControllerAdvice" />
 	</context:component-scan>
 
-	<!-- JPA EntityManagerFactory Configuration -->
-	<bean id="entityManagerFactory"
-		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-		<property name="dataSource" ref="dataSource" />
-		<property name="jpaVendorAdapter">
-			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
-		</property>
-		<property name="packagesToScan" value="com.yigwoo" />
-		<property name="jpaProperties">
-			<props>
-				<prop key="hibernate.ejb.naming_strategy">
-					org.hibernate.cfg.ImprovedNamingStrategy
-				</prop>
-				<prop key="hibernate.dialect">
-					org.hibernate.dialect.MySQLDialect
-				</prop>
-			</props>
-		</property>
+	<!-- Transaction Configuration -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
+	<tx:annotation-driven />
 
-	<!-- Spring Data JPA Configuration -->
-	<jpa:repositories base-package="com.yigwoo"
-		transaction-manager-ref="transactionManager"
-		entity-manager-factory-ref="entityManagerFactory" />
-
-	<!-- JPA Transaction Configuration -->
-	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-		<property name="entityManagerFactory" ref="entityManagerFactory" />
-	</bean>
-
-	<tx:annotation-driven transaction-manager="transactionManager"
-		proxy-target-class="true" />
-
+    <!-- MyBatis Configuration -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="com.yigwoo.simple.domain"/>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.yigwoo.simple.persistence"/>
+    </bean>
+    
 	<bean id="validator"
 		class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean" />
 

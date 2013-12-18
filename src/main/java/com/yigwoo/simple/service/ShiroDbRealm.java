@@ -1,11 +1,10 @@
-package com.yigwoo.service;
+package com.yigwoo.simple.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -24,20 +23,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.yigwoo.entity.Account;
-import com.yigwoo.entity.Role;
-import com.yigwoo.util.Encodes;
+import com.yigwoo.simple.domain.Account;
+import com.yigwoo.simple.domain.Role;
+import com.yigwoo.simple.util.Encodes;
 
 public class ShiroDbRealm extends AuthorizingRealm {
 	public static class ShiroUser implements Serializable {
 		private static final long serialVersionUID = -7499871275405557055L;
-		public Long id;
+		public int id;
 		public String username;
 		public String email;
 		public List<String> roles;
 		public Date registerDate;
 
-		public ShiroUser(Long id, String username, String email,
+		public ShiroUser(int id, String username, String email,
 				List<String> roles, Date registerDate) {
 			this.id = id;
 			this.username = username;
@@ -72,7 +71,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 			return email;
 		}
 
-		public Long getId() {
+		public int getId() {
 			return id;
 		}
 
@@ -110,7 +109,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	protected AuthenticationInfo doGetAuthenticationInfo(
 			AuthenticationToken authToken) throws AuthenticationException {
 		UsernamePasswordToken token = (UsernamePasswordToken) authToken;
-		Account account = accountService.findAccountByUsername(token
+		Account account = accountService.getAccountByUsername(token
 				.getUsername());
 		if (account != null) {
 			List<String> roleList = extractStringRoleList(account.getRoles());
@@ -132,7 +131,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 	protected AuthorizationInfo doGetAuthorizationInfo(
 			PrincipalCollection principals) {
 		ShiroUser shiroUser = (ShiroUser) principals.getPrimaryPrincipal();
-		Set<Role> roles = accountService.findAccountByUsername(shiroUser.getUsername()).getRoles();
+		List<Role> roles = accountService.getAccountByUsername(shiroUser.getUsername()).getRoles();
 		List<String> roleList = extractStringRoleList(roles);
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 		logger.debug("Current User roles {}", roles.toString());
@@ -140,7 +139,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		return info;
 	}
 
-	private List<String> extractStringRoleList(Set<Role> roles) {
+	private List<String> extractStringRoleList(List<Role> roles) {
 		ArrayList<String> roleList = new ArrayList<String>();
 		for (Role role : roles) {
 			logger.debug("{}", role.getRolename());

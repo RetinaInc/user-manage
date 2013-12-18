@@ -1,4 +1,4 @@
-package com.yigwoo.util;
+package com.yigwoo.simple.util;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;

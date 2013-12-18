@@ -1,4 +1,4 @@
-package com.yigwoo.web;
+package com.yigwoo.simple.web;
 
 import javax.validation.Valid;
 
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.yigwoo.entity.Account;
-import com.yigwoo.service.AccountService;
-import com.yigwoo.service.ShiroDbRealm.ShiroUser;
+import com.yigwoo.simple.domain.Account;
+import com.yigwoo.simple.service.AccountService;
+import com.yigwoo.simple.service.ShiroDbRealm.ShiroUser;
 
 
 @Controller
@@ -38,7 +38,7 @@ public class ProfileController {
 	@RequestMapping(value="edit", method = RequestMethod.GET)
 	public String getProfileForm(Model model) {
 		ShiroUser shiroUser = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
-		Account account = accountService.findAccount(shiroUser.id);
+		Account account = accountService.getAccount(shiroUser.id);
 		model.addAttribute("account", account);
 		return "user/editProfile";
 	}
@@ -46,7 +46,7 @@ public class ProfileController {
 	@RequestMapping(value="edit", method = RequestMethod.POST)
 	public String editProfile(@Valid @ModelAttribute("account") Account accountModel, RedirectAttributes redirectAttributes) {
 		//logger.debug("User {} {}", userModel.getEmail(), userModel.getUsername());
-		Account account = accountService.updateAccountProfile(accountModel);
+		Account account = accountService.updateAccount(accountModel);
 		updateShiroUserInfo(account);
 		String message = "Successfully Updated Your Profile";
 		redirectAttributes.addFlashAttribute("message", message);
@@ -58,7 +58,7 @@ public class ProfileController {
 	public String checkEmail(@RequestParam("email") String email) {
 		//logger.debug("{}", email);
 		ShiroUser shiroUser = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
-		Account account = accountService.findAccountByEmail(email);
+		Account account = accountService.getAccountByEmail(email);
 		if (account != null && !account.getUsername().equals(shiroUser.getUsername())) {
 			return "false";
 		} else {

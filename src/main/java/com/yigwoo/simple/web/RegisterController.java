@@ -1,4 +1,4 @@
-package com.yigwoo.web;
+package com.yigwoo.simple.web;
 
 import javax.validation.Valid;
 
@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.yigwoo.entity.Account;
-import com.yigwoo.service.AccountService;
+import com.yigwoo.simple.domain.Account;
+import com.yigwoo.simple.service.AccountService;
 
 /**
  * The controller which controls the registeration
@@ -25,7 +25,7 @@ import com.yigwoo.service.AccountService;
 @Controller
 @RequestMapping(value = "/register")
 public class RegisterController {
-	private Logger logger = LoggerFactory.getLogger("com.yigwoo.web.RegisterController");
+	private Logger logger = LoggerFactory.getLogger("com.yigwoo.simple.web.RegisterController");
 	
 	@Autowired
 	private AccountService accountService;
@@ -38,7 +38,8 @@ public class RegisterController {
 	@RequestMapping(method = RequestMethod.POST) 
 	public String register(@Valid Account account,
 			RedirectAttributes redirectAttributes) {
-		accountService.registerCommonUserAccount(account);
+		logger.debug("some message...");
+		accountService.createCommonUserAccount(account);
 		redirectAttributes.addFlashAttribute("username", account.getUsername());
 		logger.info("New user {} with email address {} registered", account.getUsername(), account.getEmail());
 		return "redirect:/login";
@@ -50,11 +51,12 @@ public class RegisterController {
 	@RequestMapping(value="checkUsername")
 	@ResponseBody
 	public String checkUsername(@RequestParam("username") String username) {
-		if (accountService.findAccountByUsername(username) == null) {
+		/*if (accountService.getAccountByUsername(username) == null) {
 			return "true";
 		} else {
 			return "false";
-		}
+		}*/
+		return "true";
 	}
 	
 	/**
@@ -63,10 +65,12 @@ public class RegisterController {
 	@RequestMapping(value="checkEmail")
 	@ResponseBody
 	public String checkEmail(@RequestParam("email") String email) {
-		if (accountService.findAccountByEmail(email) == null) {
+		/*
+		if (accountService.getAccountByEmail(email) == null) {
 			return "true";
 		} else {
 			return "false";
-		}
+		}*/
+		return "true";
 	}
 }
