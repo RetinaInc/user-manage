@@ -4,10 +4,9 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>404 PAGE NOT FOUND</title>
+<title>Exception Occured</title>
 </head>
 <body>
-<h1>404 PAGE NOT FOUND</h1>
-<script type="text/javascript" src="http://www.qq.com/404/search_children.js?edition=small" charset="utf-8"></script>
+<h3>${exception.exceptionMessage}</h3>
 </body>
 </html>

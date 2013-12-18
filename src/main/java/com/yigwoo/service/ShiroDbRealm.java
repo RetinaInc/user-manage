@@ -1,9 +1,11 @@
 package com.yigwoo.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
@@ -23,62 +25,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.yigwoo.entity.Account;
+import com.yigwoo.entity.Role;
 import com.yigwoo.util.Encodes;
 
 public class ShiroDbRealm extends AuthorizingRealm {
-	private static Logger logger = LoggerFactory.getLogger(ShiroDbRealm.class);
-	protected AccountService accountService;
-
-	@Autowired
-	public void setAccountService(AccountService accountService) {
-		this.accountService = accountService;
-	}
-
-	/**
-	 * Do authorization bussiness
-	 */
-	@Override
-	protected AuthorizationInfo doGetAuthorizationInfo(
-			PrincipalCollection principals) {
-		ShiroUser shiroUser = (ShiroUser) principals.getPrimaryPrincipal();
-		Account account = accountService.findAccountByUsername(shiroUser
-				.getUsername());
-		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
-		List<String> roles = accountService.findAccountRoles(account);
-		logger.debug("Current User roles {}", roles.toString());
-		info.addRoles(roles);
-		return info;
-	}
-
-	/**
-	 * Authentication bussiness method
-	 */
-	@Override
-	protected AuthenticationInfo doGetAuthenticationInfo(
-			AuthenticationToken authToken) throws AuthenticationException {
-		UsernamePasswordToken token = (UsernamePasswordToken) authToken;
-		Account account = accountService.findAccountByUsername(token
-				.getUsername());
-		if (account != null) {
-			List<String> roles = accountService.findAccountRoles(account);
-			byte[] salt = Encodes.decodeHex(account.getSalt());
-			return new SimpleAuthenticationInfo(new ShiroUser(account.getId(),
-					account.getUsername(), account.getEmail(), roles,
-					account.getRegisterDate()), account.getPassword(),
-					ByteSource.Util.bytes(salt), getName());
-		} else {
-			return null;
-		}
-	}
-
-	@PostConstruct
-	public void initCredentialsMatcher() {
-		HashedCredentialsMatcher matcher = new HashedCredentialsMatcher(
-				AccountService.HASH_ALGORITHM);
-		matcher.setHashIterations(AccountService.HASH_ITERATION_COUNT);
-		setCredentialsMatcher(matcher);
-	}
-
 	public static class ShiroUser implements Serializable {
 		private static final long serialVersionUID = -7499871275405557055L;
 		public Long id;
@@ -94,36 +44,6 @@ public class ShiroDbRealm extends AuthorizingRealm {
 			this.email = email;
 			this.roles = roles;
 			this.registerDate = registerDate;
-		}
-
-		public Date getRegisterDate() {
-			return registerDate;
-		}
-
-		public Long getId() {
-			return id;
-		}
-
-		public String getUsername() {
-			return username;
-		}
-
-		public String getEmail() {
-			return email;
-		}
-
-		public List<String> getRoles() {
-			return roles;
-		}
-
-		@Override
-		public String toString() {
-			return username;
-		}
-
-		@Override
-		public int hashCode() {
-			return Objects.hashCode(username);
 		}
 
 		@Override
@@ -147,5 +67,98 @@ public class ShiroDbRealm extends AuthorizingRealm {
 			}
 			return true;
 		}
+
+		public String getEmail() {
+			return email;
+		}
+
+		public Long getId() {
+			return id;
+		}
+
+		public Date getRegisterDate() {
+			return registerDate;
+		}
+
+		public List<String> getRoles() {
+			return roles;
+		}
+
+		public String getUsername() {
+			return username;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hashCode(username);
+		}
+
+		@Override
+		public String toString() {
+			return username;
+		}
+	}
+	
+	private static Logger logger = LoggerFactory.getLogger(ShiroDbRealm.class);
+
+	protected AccountService accountService;
+	
+	/**
+	 * Authentication bussiness method
+	 */
+	@Override
+	protected AuthenticationInfo doGetAuthenticationInfo(
+			AuthenticationToken authToken) throws AuthenticationException {
+		UsernamePasswordToken token = (UsernamePasswordToken) authToken;
+		Account account = accountService.findAccountByUsername(token
+				.getUsername());
+		if (account != null) {
+			List<String> roleList = extractStringRoleList(account.getRoles());
+			byte[] salt = Encodes.decodeHex(account.getSalt());
+			SimpleAuthenticationInfo authcInfo = new SimpleAuthenticationInfo(new ShiroUser(account.getId(),
+					account.getUsername(), account.getEmail(), roleList,
+					account.getRegisterDate()), account.getPassword(),
+					ByteSource.Util.bytes(salt), getName());
+			return authcInfo;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Do authorization bussiness
+	 */
+	@Override
+	protected AuthorizationInfo doGetAuthorizationInfo(
+			PrincipalCollection principals) {
+		ShiroUser shiroUser = (ShiroUser) principals.getPrimaryPrincipal();
+		Set<Role> roles = accountService.findAccountByUsername(shiroUser.getUsername()).getRoles();
+		List<String> roleList = extractStringRoleList(roles);
+		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
+		logger.debug("Current User roles {}", roles.toString());
+		info.addRoles(roleList);
+		return info;
+	}
+
+	private List<String> extractStringRoleList(Set<Role> roles) {
+		ArrayList<String> roleList = new ArrayList<String>();
+		for (Role role : roles) {
+			logger.debug("{}", role.getRolename());
+			roleList.add(role.getRolename());
+		}
+		return roleList;
+	}
+
+	@PostConstruct
+	public void initCredentialsMatcher() {
+		HashedCredentialsMatcher matcher = new HashedCredentialsMatcher(
+				AccountService.HASH_ALGORITHM);
+		matcher.setHashIterations(AccountService.HASH_ITERATION_COUNT);
+		setCredentialsMatcher(matcher);
+	}
+
+	@Autowired
+	public void setAccountService(AccountService accountService) {
+		this.accountService = accountService;
 	}
 }

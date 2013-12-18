@@ -14,9 +14,8 @@ create table role(
     primary key(id)
 ) engine=InnoDB;
 
-create table account_to_role(
-    id bigint auto_increment,
+create table account_role(
     account_id bigint not null,
     role_id bigint not null,
-    primary key(id)
+    primary key(account_id, role_id)
 ) engine=InnoDB;
