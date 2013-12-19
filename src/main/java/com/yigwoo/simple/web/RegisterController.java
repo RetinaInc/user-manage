@@ -38,7 +38,6 @@ public class RegisterController {
 	@RequestMapping(method = RequestMethod.POST) 
 	public String register(@Valid Account account,
 			RedirectAttributes redirectAttributes) {
-		logger.debug("some message...");
 		accountService.createCommonUserAccount(account);
 		redirectAttributes.addFlashAttribute("username", account.getUsername());
 		logger.info("New user {} with email address {} registered", account.getUsername(), account.getEmail());
@@ -51,12 +50,12 @@ public class RegisterController {
 	@RequestMapping(value="checkUsername")
 	@ResponseBody
 	public String checkUsername(@RequestParam("username") String username) {
-		/*if (accountService.getAccountByUsername(username) == null) {
+		logger.debug("AJAX CALL to checkUsername");
+		if (accountService.getAccountByUsername(username) == null) {
 			return "true";
 		} else {
 			return "false";
-		}*/
-		return "true";
+		}
 	}
 	
 	/**
@@ -65,12 +64,11 @@ public class RegisterController {
 	@RequestMapping(value="checkEmail")
 	@ResponseBody
 	public String checkEmail(@RequestParam("email") String email) {
-		/*
+		logger.debug("AJAX call to checkEmail");
 		if (accountService.getAccountByEmail(email) == null) {
 			return "true";
 		} else {
 			return "false";
-		}*/
-		return "true";
+		}
 	}
 }

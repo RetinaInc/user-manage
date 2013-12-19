@@ -31,7 +31,7 @@
 				},
 				messages : {
 					username : {
-						remote : "Uername occupied"
+						remote : "Username occupied"
 					},
 					email : {
 						remote : "Email occupied"

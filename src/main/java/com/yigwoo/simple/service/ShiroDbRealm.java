@@ -112,6 +112,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		Account account = accountService.getAccountByUsername(token
 				.getUsername());
 		if (account != null) {
+			logger.debug("{} has {} roles", account.getUsername(), account.getRoles().size());
 			List<String> roleList = extractStringRoleList(account.getRoles());
 			byte[] salt = Encodes.decodeHex(account.getSalt());
 			SimpleAuthenticationInfo authcInfo = new SimpleAuthenticationInfo(new ShiroUser(account.getId(),

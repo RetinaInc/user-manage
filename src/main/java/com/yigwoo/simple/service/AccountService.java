@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yigwoo.simple.domain.Account;
+import com.yigwoo.simple.domain.AccountRole;
 import com.yigwoo.simple.domain.Role;
 import com.yigwoo.simple.persistence.AccountMapper;
+import com.yigwoo.simple.persistence.AccountRoleMapper;
 import com.yigwoo.simple.persistence.RoleMapper;
 import com.yigwoo.simple.service.ShiroDbRealm.ShiroUser;
 import com.yigwoo.simple.util.DateProvider;
@@ -35,7 +38,6 @@ import com.yigwoo.simple.util.Encodes;
  */
 
 @Component
-@Transactional
 public class AccountService {
 	public static final int HASH_ITERATION_COUNT = 2324;
 	public static final String HASH_ALGORITHM = "SHA-1";
@@ -53,7 +55,23 @@ public class AccountService {
 			.getLogger(AccountService.class);
 	private DateProvider dateProvider = DateProvider.DATE_PROVIDER;
 	private AccountMapper accountMapper;
+	private AccountRoleMapper accountRoleMapper;
 	private RoleMapper roleMapper;
+	
+	@Autowired
+	public void setAccountMapper(AccountMapper accountMapper) {
+		this.accountMapper = accountMapper;
+	}
+
+	@Autowired
+	public void setAccountRoleMapper(AccountRoleMapper accountRoleMapper) {
+		this.accountRoleMapper = accountRoleMapper;
+	}
+	
+	@Autowired
+	public void setRoleMapper(RoleMapper roleMapper) {
+		this.roleMapper = roleMapper;
+	}
 
 	private PageRequest buildPageRequest(int pageNumber, int pageSize,
 			String sortColumn, String sortDirection) {
@@ -68,9 +86,8 @@ public class AccountService {
 		return new PageRequest(pageNumber - 1, pageSize, sort);
 	}
 
-	private Page<ShiroUser> buildShiroUserPage(Page<Account> accountPage,
+	private Page<ShiroUser> buildShiroUserPage(List<Account> accountList,
 			Pageable pageable) {
-		List<Account> accountList = accountPage.getContent();
 		List<ShiroUser> shiroUserList = new ArrayList<ShiroUser>();
 		for (Account account : accountList) {
 			List<Role> roles = account.getRoles();
@@ -84,10 +101,11 @@ public class AccountService {
 			shiroUserList.add(shiroUser);
 		}
 		Page<ShiroUser> shiroUserPage = new PageImpl<ShiroUser>(shiroUserList,
-				pageable, accountPage.getTotalElements());
+				pageable, pageable.);
 		return shiroUserPage;
 	}
 
+	@Transactional
 	public void deleteAccount(int id) {
 		if (id == 1) {
 			throw new ServiceException("Cannot Delete A Superuser Account");
@@ -113,38 +131,39 @@ public class AccountService {
 	}
 
 	public Account getAccountByUsername(String username) {
-		/* Since account.getRoles() use LAZY fetch strategy,
-		 * and AccountService is @Transactional
-		 * we must set the roles to the account now.
-		 * Or the account's roles would be empty!
-		 */
 		Account account = accountMapper.getAccountByUsername(username);
-		List<Role> roles = account.getRoles();
-		logger.debug("roles {}", roles.size());
-		account.setRoles(roles);
 		return account;
 	}
 
-	public Page<ShiroUser> findAllShiroUsers(int pageNumber, int pageSize,
+	public Page<ShiroUser> getAllShiroUsers(int pageNumber, int pageSize,
 			String sortColumn, String sortDirection) {
-		//PageRequest pageRequest = buildPageRequest(pageNumber, pageSize,
-		//sortColumn, sortDirection);
-		//Page<Account> accountPage = accountMapper.findAll(pageRequest);
-		//Page<ShiroUser> users = buildShiroUserPage(accountPage, pageRequest);
+		PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, sortColumn, sortDirection);
+		RowBounds rowBounds = new RowBounds((pageNumber-1)*pageSize, pageSize);
+		List<Account> accounts = accountMapper.getAllAccounts();
+		logger.debug("Accounts number: {}", accounts.size());
+
 		//return users;
 		return null;
 	}
 
+	@Transactional
 	public void createAccount(Account account, List<String> roleList) {
+		/* First we want to encrypt the plain password with
+		 * the predefined one-way algorithm; then set the register date
+		 * of the account;
+		 * Next, for each role in `roleList`, we add an entry to ACCOUNT_ROLE
+		 * table, with the `ROLE_ID` found in `ROLE` table and the account.id;
+		 * Finally, we insert the account information into `ACCOUNT` table.
+		 */
 		encryptPassword(account);
 		account.setRegisterDate(dateProvider.getDate());
-		List<Role> roles = new ArrayList<Role>();
-		for (String rolename : roleList) {
-			//Role role = roleMapper.findByRolename(rolename);
-			//roles.add(role);
-		}
-		account.setRoles(roles);
 		accountMapper.insertAccount(account);
+		for (String rolename : roleList) {
+			Role role = roleMapper.getRoleByRolename(rolename);
+			AccountRole accountRole = new AccountRole(account.getId(), role.getId());
+			logger.debug("create account accountId:{}, roleId:{}", account.getId(), role.getId());
+			accountRoleMapper.insertAccountRole(accountRole);
+		}
 	}
 
 	public void createAdminAccount(Account account) {
@@ -155,16 +174,7 @@ public class AccountService {
 		createAccount(account, COMMON_USER_ROLES);
 	}
 
-	@Autowired
-	public void setAccountMapper(AccountMapper accountMapper) {
-		this.accountMapper = accountMapper;
-	}
-
-	@Autowired
-	public void setRoleMapper(RoleMapper roleMapper) {
-		this.roleMapper = roleMapper;
-	}
-
+	@Transactional
 	public Account updateAccount(Account accountModel) {
 		/*
 		 * Since the the form in "editProfile" will generate a new Account

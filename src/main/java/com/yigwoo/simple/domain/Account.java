@@ -1,5 +1,6 @@
 package com.yigwoo.simple.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -13,8 +14,10 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author YigWoo
  * 
  */
-public class Account {
+public class Account implements Serializable{
 
+	private static final long serialVersionUID = 6835146172519330564L;
+	
 	private int id;
 	private String username;
 	private String email;

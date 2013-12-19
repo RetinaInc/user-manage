@@ -12,7 +12,7 @@
 	</bean>
 
 	<bean id="shiroDbRealm" class="com.yigwoo.simple.service.ShiroDbRealm"
-		depends-on="accountMapper, roleMapper">
+		depends-on="accountMapper, roleMapper, accountRoleMapper">
 		<property name="accountService" ref="accountService" />
 	</bean>
 

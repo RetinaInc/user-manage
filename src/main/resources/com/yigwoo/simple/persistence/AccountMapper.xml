@@ -3,26 +3,30 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.yigwoo.simple.persistence.AccountMapper">
-    <resultMap id="RoleMap" type="Role" >
-        <id property="id" column="id"/>
-        <result property="rolename" column="rolename"/>
-    </resultMap>
-    
-    <resultMap id="AccountMap" type="Account">
-        <id property="id" column="id"/>
-        <result property="username" column="username"/>
-        <result property="email" column="email"/>
-        <result property="registerDate" column="register_date"/>
-        <collection property="role" resultMap="RoleMap"/>
-    </resultMap>
+	<resultMap id="roleResult" type="Role">
+		<id property="id" column="role_id" />
+		<result property="rolename" column="rolename" />
+	</resultMap>
+
+	<resultMap id="accountResult" type="Account">
+		<id property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="email" column="email" />
+		<result property="password" column="password" />
+		<result property="salt" column="salt" />
+		<result property="registerDate" column="register_date" />
+		<collection property="roles" resultMap="roleResult" />
+	</resultMap>
 
 	<cache />
 	<insert id="insertAccount" parameterType="Account"
 		useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO ACCOUNT
-		(USERNAME, EMAIL, PASSWORD, SALT, REGISTER_DATE)
+		(USERNAME,
+		EMAIL, PASSWORD, SALT, REGISTER_DATE)
 		VALUES
-		(#{username}, #{email}, #{password}, #{salt}, #{registerDate})
+		(#{username}, #{email},
+		#{password}, #{salt}, #{registerDate})
 	</insert>
 
 	<update id="updateAccount" parameterType="Account">
@@ -30,33 +34,45 @@
 		EMAIL = #{email},
 		PASSWORD = #{password},
 		SALT = #{salt}
-		WHERE USERNAME = #{username}
+		WHERE USERNAME =
+		#{username}
 	</update>
 
 	<delete id="deleteAccountById" parameterType="int">
-		DELETE FROM ACCOUNT WHERE ID = #{id}
+		DELETE FROM ACCOUNT
+		WHERE ID = #{id}
 	</delete>
 
-	<select id="getAccountById" parameterType="int" resultMap="AccountMap">
-		SELECT ID, USERNAME, EMAIL, PASSWORD, SALT, REGISTER_DATE as registerDate
-        R.ID, R.ROLENAME
+    <select id="getAllAccounts" resultMap="accountResult">
+        SELECT A.ID, A.USERNAME, A.EMAIL, A.PASSWORD, A.SALT, A.REGISTER_DATE,
+               R.ID AS ROLE_ID, R.ROLENAME
         FROM ACCOUNT A
-            LEFT OUTER JOIN ACCOUNT_ROLE AR ON A.ID = AR.ACCOUNT_ID
-            LEFT OUTER JOINT ROLE R ON AR.ROLE_ID = R.ID
-		WHERE A.ID = #{id}
-	</select>
+        LEFT OUTER JOIN ACCOUNT_ROLE AR ON A.ID = AR.ACCOUNT_ID
+        LEFT OUTER JOIN ROLE R ON R.ID = AR.ROLE_ID
+    </select>
 
 	<select id="getAccountByUsername" parameterType="string"
-		resultType="Account">
-		SELECT ID, USERNAME, EMAIL, PASSWORD, SALT, REGISTER_DATE as registerDate
+		resultMap="accountResult">
+		SELECT A.ID, A.USERNAME, A.EMAIL, A.PASSWORD, A.SALT, A.REGISTER_DATE,
+		       R.ID AS ROLE_ID, R.ROLENAME
+		FROM ACCOUNT A
+		LEFT OUTER JOIN ACCOUNT_ROLE AR ON A.ID = AR.ACCOUNT_ID
+		LEFT OUTER JOIN ROLE R ON R.ID = AR.ROLE_ID
+		WHERE A.USERNAME=#{username};
+	</select>
+
+	<select id="getAccountById" parameterType="int" resultType="Account">
+		SELECT ID, USERNAME, EMAIL, PASSWORD, SALT, REGISTER_DATE as
+		registerDate
 		FROM ACCOUNT
-		WHERE USERNAME = #{username}
+		WHERE ID = #{id}
 	</select>
 
 	<select id="getAccountByEmail" parameterType="string"
 		resultType="Account">
-		SELECT ID, USERNAME, EMAIL, PASSWORD, SALT, REGISTER_DATE as registerDate,
-		FROM ACCOUNT  
+		SELECT ID, USERNAME, EMAIL, PASSWORD, SALT, REGISTER_DATE
+		as registerDate
+		FROM ACCOUNT
 		WHERE EMAIL = #{email}
 	</select>
 </mapper>

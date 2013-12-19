@@ -1,11 +1,14 @@
 package com.yigwoo.simple.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.NotBlank;
 
-public class Role {
+public class Role implements Serializable{
+	private static final long serialVersionUID = 3177289562555454870L;
+	
 	private int id;
 	private String rolename;
 	private List<Account> accounts = new ArrayList<Account>();
@@ -19,7 +22,7 @@ public class Role {
 		this.id = id;
 	}
 	
-	@NotNull
+	@NotBlank
 	public String getRolename() {
 		return rolename;
 	}

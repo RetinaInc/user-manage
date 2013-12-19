@@ -27,11 +27,11 @@ public class HttpErrorController {
 	
 	@RequestMapping("Error404")
 	public String displayError404() {
-		return "error/404";
+		return "errors/404";
 	}
 	
 	@RequestMapping("Error500")
 	public String displayError500() {
-		return "error/500";
+		return "errors/500";
 	}
 }

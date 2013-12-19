@@ -64,16 +64,15 @@ public class AccountManagementController {
 			@RequestParam(value = "sortColumn", defaultValue = "id") String sortColumn,
 			@RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
 			Model model) {
-		Page<ShiroUser> users = accountService.findAllShiroUsers(pageNumber,
+		Page<ShiroUser> users = accountService.getAllShiroUsers(pageNumber,
 				pageSize, sortColumn, sortDirection);
 		// logUsers(users);
-		model.addAttribute("users", users);
+		// model.addAttribute("users", users);
 		model.addAttribute("sortColumn", sortColumn);
 		model.addAttribute("sortDirection", sortDirection);
 		return MANAGE_USERS_LIST;
 	}
 
-	@SuppressWarnings("unused")
 	private void logUsers(Page<ShiroUser> users) {
 		for (int i = 0; i < users.getContent().size(); i++)
 			logger.debug("ShiroUser: {}", users.getContent().get(i).username);

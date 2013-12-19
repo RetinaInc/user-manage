@@ -5,15 +5,6 @@
 <%@ page import="org.slf4j.Logger,org.slf4j.LoggerFactory" %>
 <%response.setStatus(200);%>
 
-<%
-    Throwable ex = null;
-    if (exception != null)
-        ex = exception;
-    if (request.getAttribute("javax.servlet.error.exception") != null)
-        ex = (Throwable) request.getAttribute("javax.servlet.error.exception");
-    Logger logger = LoggerFactory.getLogger("500.jsp");
-    logger.error(ex.getMessage(), ex);
-%>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
