@@ -31,21 +31,22 @@ public class ProfileController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String getProfile(Model model) {
 		ShiroUser user = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
-		model.addAttribute("user", user);
+		Account account = accountService.getAccountByUsername(user.username);
+		model.addAttribute("account", account);
 		return "user/profile";
 	}
 	
 	@RequestMapping(value="edit", method = RequestMethod.GET)
-	public String getProfileForm(Model model) {
+	public String getEditProfile(Model model) {
 		ShiroUser shiroUser = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
-		Account account = accountService.getAccount(shiroUser.id);
+		Account account = accountService.getAccountById(shiroUser.id);
 		model.addAttribute("account", account);
 		return "user/editProfile";
 	}
 	
 	@RequestMapping(value="edit", method = RequestMethod.POST)
 	public String editProfile(@Valid @ModelAttribute("account") Account accountModel, RedirectAttributes redirectAttributes) {
-		//logger.debug("User {} {}", userModel.getEmail(), userModel.getUsername());
+		logger.debug("User {} {}", accountModel.getEmail(), accountModel.getUsername());
 		Account account = accountService.updateAccount(accountModel);
 		updateShiroUserInfo(account);
 		String message = "Successfully Updated Your Profile";

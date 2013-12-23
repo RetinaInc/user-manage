@@ -8,7 +8,7 @@
         VALUES
         (#{accountId}, #{roleId})
     </insert>
-    <delete id="deleteAccountRole" parameterType="AccountRole">
+    <delete id="deleteAccountRoleByAccountId" parameterType="int">
         DELETE FROM ACCOUNT_ROLE
         WHERE ACCOUNT_ID = #{accountId}
     </delete>

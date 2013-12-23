@@ -21,19 +21,27 @@
 		<table class="table">
 			<tr>
 				<td>Username</td>
-				<td><c:out value="${user.username}" /></td>
+				<td><c:out value="${account.username}" /></td>
 			</tr>
 			<tr>
 				<td>Email Address</td>
-				<td><c:out value="${user.email}" /></td>
+				<td><c:out value="${account.email}" /></td>
 			</tr>
 			<tr>
 				<td>Roles</td>
 				<td>
-				<c:forEach var="role" items="${user.roles}">
-				    ${role}<br>
+				<c:forEach var="role" items="${account.roles}">
+				    ${role.rolename}<br>
 				</c:forEach>
 				</td>
+			</tr>
+			<tr>
+			 <td>Birthday</td>
+			 <td><c:out value="${account.birthday}"></c:out>
+			</tr>
+			<tr>
+			 <td>Age</td>
+			 <td><c:out value="${account.age}"></c:out>
 			</tr>
 		</table>
 	</div>

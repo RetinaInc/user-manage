@@ -49,8 +49,7 @@ public class RegisterController {
 	 */
 	@RequestMapping(value="checkUsername")
 	@ResponseBody
-	public String checkUsername(@RequestParam("username") String username) {
-		logger.debug("AJAX CALL to checkUsername");
+	public String isUsernameAvailable(@RequestParam("username") String username) {
 		if (accountService.getAccountByUsername(username) == null) {
 			return "true";
 		} else {
@@ -63,8 +62,7 @@ public class RegisterController {
 	 */
 	@RequestMapping(value="checkEmail")
 	@ResponseBody
-	public String checkEmail(@RequestParam("email") String email) {
-		logger.debug("AJAX call to checkEmail");
+	public String isEmailAvailable(@RequestParam("email") String email) {
 		if (accountService.getAccountByEmail(email) == null) {
 			return "true";
 		} else {

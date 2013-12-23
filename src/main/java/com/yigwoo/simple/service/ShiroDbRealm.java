@@ -1,7 +1,6 @@
 package com.yigwoo.simple.service;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -98,7 +97,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		}
 	}
 	
-	private static Logger logger = LoggerFactory.getLogger(ShiroDbRealm.class);
+	static Logger logger = LoggerFactory.getLogger(ShiroDbRealm.class);
 
 	protected AccountService accountService;
 	
@@ -113,7 +112,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 				.getUsername());
 		if (account != null) {
 			logger.debug("{} has {} roles", account.getUsername(), account.getRoles().size());
-			List<String> roleList = extractStringRoleList(account.getRoles());
+			List<String> roleList = accountService.extractStringRoleList(account.getRoles());
 			byte[] salt = Encodes.decodeHex(account.getSalt());
 			SimpleAuthenticationInfo authcInfo = new SimpleAuthenticationInfo(new ShiroUser(account.getId(),
 					account.getUsername(), account.getEmail(), roleList,
@@ -133,20 +132,11 @@ public class ShiroDbRealm extends AuthorizingRealm {
 			PrincipalCollection principals) {
 		ShiroUser shiroUser = (ShiroUser) principals.getPrimaryPrincipal();
 		List<Role> roles = accountService.getAccountByUsername(shiroUser.getUsername()).getRoles();
-		List<String> roleList = extractStringRoleList(roles);
+		List<String> roleList = accountService.extractStringRoleList(roles);
 		SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
 		logger.debug("Current User roles {}", roles.toString());
 		info.addRoles(roleList);
 		return info;
-	}
-
-	private List<String> extractStringRoleList(List<Role> roles) {
-		ArrayList<String> roleList = new ArrayList<String>();
-		for (Role role : roles) {
-			logger.debug("{}", role.getRolename());
-			roleList.add(role.getRolename());
-		}
-		return roleList;
 	}
 
 	@PostConstruct

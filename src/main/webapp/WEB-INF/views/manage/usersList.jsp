@@ -38,7 +38,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach items="${users.content}" var="user">
+			<c:forEach items="${users}" var="user">
 				<tr>
 					<td>${user.id}</td>
 					<td>${user.username }</td>
@@ -57,6 +57,7 @@
 		</tbody>
 	</table>
 
+    <%-- 
 	<tags:pagination paginationSize="5" page="${users}"></tags:pagination>
 
 	<script type="text/javascript">
@@ -74,5 +75,6 @@
 							+ "&sortColumn=" + sortColumn + "&sortDirection=" + direction;
 				});
 	</script>
+	 --%>
 </body>
 </html>

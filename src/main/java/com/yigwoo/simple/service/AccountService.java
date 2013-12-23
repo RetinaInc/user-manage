@@ -5,16 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.RowBounds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,15 +34,12 @@ import com.yigwoo.simple.util.Encodes;
 public class AccountService {
 	public static final int HASH_ITERATION_COUNT = 2324;
 	public static final String HASH_ALGORITHM = "SHA-1";
-	public static final String ROLENAME_COMMON_USER = "common user";
-	public static final String ROLENAME_ADMIN = "admin";
-	public static final String ROLENAME_SUPER_ADMIN = "super admin";
-	public static final List<String> COMMON_USER_ROLES = Arrays
+	private static final String ROLENAME_COMMON_USER = "common user";
+	private static final String ROLENAME_ADMIN = "admin";
+	private static final List<String> COMMON_USER_ROLES = Arrays
 			.asList(ROLENAME_COMMON_USER);
-	public static final List<String> ADMIN_ROLES = Arrays.asList(
+	private static final List<String> ADMIN_ROLES = Arrays.asList(
 			ROLENAME_ADMIN, ROLENAME_COMMON_USER);
-	public static final List<String> SUPER_ADMIN_ROLES = Arrays.asList(
-			ROLENAME_ADMIN, ROLENAME_COMMON_USER, ROLENAME_SUPER_ADMIN);
 	private static final int SALT_SIZE = 8;
 	private static Logger logger = LoggerFactory
 			.getLogger(AccountService.class);
@@ -72,45 +62,14 @@ public class AccountService {
 	public void setRoleMapper(RoleMapper roleMapper) {
 		this.roleMapper = roleMapper;
 	}
-
-	private PageRequest buildPageRequest(int pageNumber, int pageSize,
-			String sortColumn, String sortDirection) {
-		Sort sort = null;
-		Direction direction = null;
-		if (sortDirection.equals("ASC")) {
-			direction = Direction.ASC;
-		} else if (sortDirection.equals("DESC")) {
-			direction = Direction.DESC;
-		}
-		sort = new Sort(direction, sortColumn);
-		return new PageRequest(pageNumber - 1, pageSize, sort);
-	}
-
-	private Page<ShiroUser> buildShiroUserPage(List<Account> accountList,
-			Pageable pageable) {
-		List<ShiroUser> shiroUserList = new ArrayList<ShiroUser>();
-		for (Account account : accountList) {
-			List<Role> roles = account.getRoles();
-			List<String> roleList = new ArrayList<String>();
-			for (Role role : roles) {
-				roleList.add(role.getRolename());
-			}
-			ShiroUser shiroUser = new ShiroUser(account.getId(),
-					account.getUsername(), account.getEmail(), roleList,
-					account.getRegisterDate());
-			shiroUserList.add(shiroUser);
-		}
-		Page<ShiroUser> shiroUserPage = new PageImpl<ShiroUser>(shiroUserList,
-				pageable, pageable.);
-		return shiroUserPage;
-	}
-
+	
 	@Transactional
 	public void deleteAccount(int id) {
 		if (id == 1) {
 			throw new ServiceException("Cannot Delete A Superuser Account");
 		} else {
 			accountMapper.deleteAccountById(id);
+			accountRoleMapper.deleteAccountRoleByAccountId(id);
 		}
 	}
 
@@ -122,7 +81,7 @@ public class AccountService {
 		account.setPassword(Encodes.encodeHex(hashedPassword));
 	}
 
-	public Account getAccount(int id) {
+	public Account getAccountById(int id) {
 		return accountMapper.getAccountById(id);
 	}
 
@@ -132,18 +91,25 @@ public class AccountService {
 
 	public Account getAccountByUsername(String username) {
 		Account account = accountMapper.getAccountByUsername(username);
+		logger.debug("owner's name {}, owner's age {}", account.getUsername(), account.getAge());
 		return account;
 	}
-
-	public Page<ShiroUser> getAllShiroUsers(int pageNumber, int pageSize,
+	
+	public List<ShiroUser> getAllShiroUsers(int pageNumber, int pageSize,
 			String sortColumn, String sortDirection) {
-		PageRequest pageRequest = buildPageRequest(pageNumber, pageSize, sortColumn, sortDirection);
-		RowBounds rowBounds = new RowBounds((pageNumber-1)*pageSize, pageSize);
 		List<Account> accounts = accountMapper.getAllAccounts();
-		logger.debug("Accounts number: {}", accounts.size());
-
-		//return users;
-		return null;
+		List<ShiroUser> shiroUsers = buildShiroUsersFromAccounts(accounts);
+		return shiroUsers;
+	}
+	
+	private List<ShiroUser> buildShiroUsersFromAccounts(List<Account> accounts) {
+		List<ShiroUser> shiroUsers = new ArrayList<ShiroUser>();
+		for (Account account : accounts) {
+			List<String> roles =   extractStringRoleList(account.getRoles());
+			ShiroUser user = new ShiroUser(account.getId(), account.getUsername(), account.getEmail(), roles, account.getRegisterDate());
+			shiroUsers.add(user);
+		}
+		return shiroUsers;
 	}
 
 	@Transactional
@@ -187,10 +153,21 @@ public class AccountService {
 		Account account = getAccountByUsername(accountModel.getUsername());
 		account.setEmail(accountModel.getEmail());
 		account.setPlainPassword(accountModel.getPlainPassword());
+		account.setBirthday(accountModel.getBirthday());
 		if (StringUtils.isNotBlank(account.getPlainPassword())) {
 			encryptPassword(account);
 		}
+		logger.debug("birthday {}", account.getBirthday());
 		accountMapper.updateAccount(account);
 		return account;
+	}
+
+	public List<String> extractStringRoleList(List<Role> roles) {
+		ArrayList<String> roleList = new ArrayList<String>();
+		for (Role role : roles) {
+			ShiroDbRealm.logger.debug("{}", role.getRolename());
+			roleList.add(role.getRolename());
+		}
+		return roleList;
 	}
 }

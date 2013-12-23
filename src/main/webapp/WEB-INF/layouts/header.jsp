@@ -4,7 +4,7 @@
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <div id="header">
-	<div id="title"> <h1>A LoginRegister Demo Web Application</h1> </div>
+	<div id="title"> <h1>A Login/Register Demo Web Application</h1> </div>
 	<shiro:user>
 		<ul class="nav nav-pills nav-justified">
 			<li><a href="${ctx}/profile"><shiro:principal />'s Profile</a></li>

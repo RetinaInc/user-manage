@@ -1,5 +1,6 @@
 package com.yigwoo.simple.persistence;
 
+
 import com.yigwoo.simple.domain.AccountRole;
 
 /**
@@ -10,5 +11,5 @@ import com.yigwoo.simple.domain.AccountRole;
  */
 public interface AccountRoleMapper {
 	public void insertAccountRole(AccountRole accountRole);
-	public void deleteAccountRole(AccountRole accountRole);
+	public void deleteAccountRoleByAccountId(int accountId);
 }

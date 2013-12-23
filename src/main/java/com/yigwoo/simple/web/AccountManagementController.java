@@ -1,5 +1,6 @@
 package com.yigwoo.simple.web;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
@@ -8,7 +9,6 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -64,22 +64,18 @@ public class AccountManagementController {
 			@RequestParam(value = "sortColumn", defaultValue = "id") String sortColumn,
 			@RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
 			Model model) {
-		Page<ShiroUser> users = accountService.getAllShiroUsers(pageNumber,
+		List<ShiroUser> users = accountService.getAllShiroUsers(pageNumber,
 				pageSize, sortColumn, sortDirection);
-		// logUsers(users);
-		// model.addAttribute("users", users);
-		model.addAttribute("sortColumn", sortColumn);
-		model.addAttribute("sortDirection", sortDirection);
+		logUsers(users);
+		model.addAttribute("users", users);
+		//model.addAttribute("sortColumn", sortColumn);
+		//model.addAttribute("sortDirection", sortDirection);
 		return MANAGE_USERS_LIST;
 	}
 
-	private void logUsers(Page<ShiroUser> users) {
-		for (int i = 0; i < users.getContent().size(); i++)
-			logger.debug("ShiroUser: {}", users.getContent().get(i).username);
-		logger.debug(
-				"Total:{}, Number:{}, Size:{}, Sort:{}, TotalPages:{}, isFirst:{}",
-				users.getTotalElements(), users.getNumber(), users.getSize(),
-				users.getSort(), users.getTotalPages(), users.isFirstPage());
+	private void logUsers(List<ShiroUser> users) {
+		for (int i = 0; i < users.size(); i++)
+			logger.debug("ShiroUser: {}", users.get(i).username);
 	}
 
 	@RequiresRoles("super admin")
@@ -103,13 +99,13 @@ public class AccountManagementController {
 	@RequiresRoles("super admin")
 	@RequestMapping(value = "users/edit/{id}", method = RequestMethod.GET)
 	public String editUser(@PathVariable("id") int id, Model model) {
-		model.addAttribute("user", accountService.getAccount(id));
+		model.addAttribute("account", accountService.getAccountById(id));
 		return MANAGE_EDIT_USER;
 	}
 
 	@RequiresRoles("super admin")
 	@RequestMapping(value = "users/edit", method = RequestMethod.POST)
-	public String editUser(@Valid @ModelAttribute("user") Account accountModel,
+	public String editUser(@Valid @ModelAttribute("account") Account accountModel,
 			RedirectAttributes redirectAttributes) {
 		accountService.updateAccount(accountModel);
 		redirectAttributes.addFlashAttribute("message",
@@ -129,11 +125,11 @@ public class AccountManagementController {
 
 	@RequestMapping(value = "checkEmail/{id}")
 	@ResponseBody
-	public String checkEmail(@RequestParam("email") String email,
+	public String isEmailAvailable(@RequestParam("email") String email,
 			@PathVariable("id") int id) {
-		// logger.debug("{} {}", email, id);
+		logger.debug("{} {}", email, id);
 		Account account = accountService.getAccountByEmail(email);
-		if (account.getId() == id) {
+		if (account == null || account.getId() == id) {
 			return "true";
 		} else {
 			return "false";
