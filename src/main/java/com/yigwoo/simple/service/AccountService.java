@@ -106,7 +106,9 @@ public class AccountService {
 		List<ShiroUser> shiroUsers = new ArrayList<ShiroUser>();
 		for (Account account : accounts) {
 			List<String> roles =   extractStringRoleList(account.getRoles());
-			ShiroUser user = new ShiroUser(account.getId(), account.getUsername(), account.getEmail(), roles, account.getRegisterDate());
+			ShiroUser user = new ShiroUser(account.getId(), account.getUsername(), 
+					account.getEmail(), account.getBirthday(), account.getAge(),
+					roles, account.getRegisterDate());
 			shiroUsers.add(user);
 		}
 		return shiroUsers;

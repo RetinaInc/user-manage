@@ -30,6 +30,8 @@
 				<th class="sortable">Id</th>
 				<th class="sortable">Username</th>
 				<th class="sortable">Email</th>
+				<th class="sortable">Birthday</th>
+				<th class="sortable">Age</th>
 				<th>Roles</th>
 				<th id="registerDate">Register Date</th>
 				<shiro:hasRole name="super admin">
@@ -46,6 +48,8 @@
 					<td><c:forEach items="${user.roles}" var="role">
 					       ${role}<br>
 						</c:forEach></td>
+					<td><fmt:formatDate value="${user.birthday}" pattern="yyyy-MM-dd"/></td>
+					<td>${user.age}</td>
 					<td><fmt:formatDate value="${user.registerDate}"
 							pattern="yyyy-MM-dd  HH:mm:ss" /></td>
 					<shiro:hasRole name="super admin">

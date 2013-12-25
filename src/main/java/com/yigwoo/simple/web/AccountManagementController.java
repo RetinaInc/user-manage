@@ -75,7 +75,7 @@ public class AccountManagementController {
 
 	private void logUsers(List<ShiroUser> users) {
 		for (int i = 0; i < users.size(); i++)
-			logger.debug("ShiroUser: {}", users.get(i).username);
+			logger.debug("ShiroUser: {}", users.get(i).getUsername());
 	}
 
 	@RequiresRoles("super admin")

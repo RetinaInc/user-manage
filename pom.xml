@@ -15,6 +15,7 @@
 		<ehcache.version>2.6.5</ehcache.version>
 		<guava.version>15.0</guava.version>
 		<hibernate-validator.version>5.0.1.Final</hibernate-validator.version>
+		<jackson.version>2.1.5</jackson.version>
 		<jstl.version>1.2</jstl.version>
 		<logback.version>1.0.13</logback.version>
 		<mybatis.version>3.2.3</mybatis.version>
@@ -143,6 +144,24 @@
 			<version>${hibernate-validator.version}</version>
 		</dependency>
 		<!-- End Security Dependencies -->
+
+		<!-- Start Json -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-jaxb-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<!-- End Json -->
 
 		<!-- Start Utilities Dependencies -->
 		<dependency>

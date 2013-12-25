@@ -31,7 +31,7 @@ public class ProfileController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String getProfile(Model model) {
 		ShiroUser user = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
-		Account account = accountService.getAccountByUsername(user.username);
+		Account account = accountService.getAccountByUsername(user.getUsername());
 		model.addAttribute("account", account);
 		return "user/profile";
 	}
@@ -39,7 +39,7 @@ public class ProfileController {
 	@RequestMapping(value="edit", method = RequestMethod.GET)
 	public String getEditProfile(Model model) {
 		ShiroUser shiroUser = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
-		Account account = accountService.getAccountById(shiroUser.id);
+		Account account = accountService.getAccountById(shiroUser.getId());
 		model.addAttribute("account", account);
 		return "user/editProfile";
 	}
@@ -69,6 +69,7 @@ public class ProfileController {
 	
 	private void updateShiroUserInfo(Account account) {
 		ShiroUser shiroUser = (ShiroUser) SecurityUtils.getSubject().getPrincipal();
-		shiroUser.email = account.getEmail();
+		shiroUser.setEmail(account.getEmail());
+		shiroUser.setBirthday(account.getBirthday());
 	}
 }

@@ -29,17 +29,21 @@ import com.yigwoo.simple.util.Encodes;
 public class ShiroDbRealm extends AuthorizingRealm {
 	public static class ShiroUser implements Serializable {
 		private static final long serialVersionUID = -7499871275405557055L;
-		public int id;
-		public String username;
-		public String email;
-		public List<String> roles;
-		public Date registerDate;
+		private int id;
+		private String username;
+		private String email;
+		private Date birthday;
+		private int age;
+		private List<String> roles;
+		private Date registerDate;
 
-		public ShiroUser(int id, String username, String email,
+		public ShiroUser(int id, String username, String email, Date birthday, int age,
 				List<String> roles, Date registerDate) {
 			this.id = id;
 			this.username = username;
 			this.email = email;
+			this.birthday = birthday;
+			this.age = age;
 			this.roles = roles;
 			this.registerDate = registerDate;
 		}
@@ -69,6 +73,10 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		public String getEmail() {
 			return email;
 		}
+		
+		public void setEmail(String email) {
+			this.email = email;
+		}
 
 		public int getId() {
 			return id;
@@ -95,6 +103,22 @@ public class ShiroDbRealm extends AuthorizingRealm {
 		public String toString() {
 			return username;
 		}
+
+		public Date getBirthday() {
+			return birthday;
+		}
+
+		public void setBirthday(Date birthday) {
+			this.birthday = birthday;
+		}
+
+		public int getAge() {
+			return age;
+		}
+
+		public void setAge(int age) {
+			this.age = age;
+		}
 	}
 	
 	static Logger logger = LoggerFactory.getLogger(ShiroDbRealm.class);
@@ -115,7 +139,7 @@ public class ShiroDbRealm extends AuthorizingRealm {
 			List<String> roleList = accountService.extractStringRoleList(account.getRoles());
 			byte[] salt = Encodes.decodeHex(account.getSalt());
 			SimpleAuthenticationInfo authcInfo = new SimpleAuthenticationInfo(new ShiroUser(account.getId(),
-					account.getUsername(), account.getEmail(), roleList,
+					account.getUsername(), account.getEmail(), account.getBirthday(), account.getAge(), roleList,
 					account.getRegisterDate()), account.getPassword(),
 					ByteSource.Util.bytes(salt), getName());
 			return authcInfo;

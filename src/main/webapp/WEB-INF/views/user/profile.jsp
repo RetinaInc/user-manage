@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <html>
@@ -21,11 +22,11 @@
 		<table class="table">
 			<tr>
 				<td>Username</td>
-				<td><c:out value="${account.username}" /></td>
+				<td>${account.username}</td>
 			</tr>
 			<tr>
 				<td>Email Address</td>
-				<td><c:out value="${account.email}" /></td>
+				<td>${account.email}</td>
 			</tr>
 			<tr>
 				<td>Roles</td>
@@ -37,11 +38,11 @@
 			</tr>
 			<tr>
 			 <td>Birthday</td>
-			 <td><c:out value="${account.birthday}"></c:out>
+			 <td><fmt:formatDate value="${account.birthday}" pattern="yyyy-MM-dd"/></td>
 			</tr>
 			<tr>
 			 <td>Age</td>
-			 <td><c:out value="${account.age}"></c:out>
+			 <td>${account.age}</td>
 			</tr>
 		</table>
 	</div>
