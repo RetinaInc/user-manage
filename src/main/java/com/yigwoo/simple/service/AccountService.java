@@ -94,24 +94,11 @@ public class AccountService {
 		logger.debug("owner's name {}, owner's age {}", account.getUsername(), account.getAge());
 		return account;
 	}
-	
-	public List<ShiroUser> getAllShiroUsers(int pageNumber, int pageSize,
-			String sortColumn, String sortDirection) {
+
+	@Transactional
+	public List<Account>getAllAccounts() {
 		List<Account> accounts = accountMapper.getAllAccounts();
-		List<ShiroUser> shiroUsers = buildShiroUsersFromAccounts(accounts);
-		return shiroUsers;
-	}
-	
-	private List<ShiroUser> buildShiroUsersFromAccounts(List<Account> accounts) {
-		List<ShiroUser> shiroUsers = new ArrayList<ShiroUser>();
-		for (Account account : accounts) {
-			List<String> roles =   extractStringRoleList(account.getRoles());
-			ShiroUser user = new ShiroUser(account.getId(), account.getUsername(), 
-					account.getEmail(), account.getBirthday(), account.getAge(),
-					roles, account.getRegisterDate());
-			shiroUsers.add(user);
-		}
-		return shiroUsers;
+		return accounts;
 	}
 
 	@Transactional

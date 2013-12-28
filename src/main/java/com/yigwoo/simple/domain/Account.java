@@ -1,12 +1,12 @@
 package com.yigwoo.simple.domain;
 
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.validation.constraints.Past;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotBlank;
@@ -24,13 +24,24 @@ public class Account implements Serializable{
 	private static final long serialVersionUID = 6835146172519330564L;
 	
 	private int id;
+	
+	@Size(min=5, max=64)
+	@NotBlank
 	private String username;
+	
+	@NotBlank
+	@Email
 	private String email;
+	
+	@DateTimeFormat(iso=ISO.DATE)
+	@Past
 	private Date birthday;
 	private int age;
 	private String password;
 	private String salt;
 	private Date registerDate;
+	
+	@Size(min=6, max=64)
 	private String plainPassword;
 	private List<Role> roles = new ArrayList<Role>();
 
@@ -41,8 +52,6 @@ public class Account implements Serializable{
 		return age;
 	}
 
-	@NotBlank
-	@Email
 	public String getEmail() {
 		return email;
 	}
@@ -71,7 +80,6 @@ public class Account implements Serializable{
 		return salt;
 	}
 
-	@NotBlank
 	public String getUsername() {
 		return username;
 	}
@@ -112,7 +120,7 @@ public class Account implements Serializable{
 		this.username = username;
 	}
 
-	@DateTimeFormat(iso=ISO.DATE)
+
 	public Date getBirthday() {
 		return birthday;
 	}

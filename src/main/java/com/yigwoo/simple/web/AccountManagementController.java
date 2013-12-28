@@ -1,5 +1,6 @@
 package com.yigwoo.simple.web;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,8 +65,8 @@ public class AccountManagementController {
 			@RequestParam(value = "sortColumn", defaultValue = "id") String sortColumn,
 			@RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
 			Model model) {
-		List<ShiroUser> users = accountService.getAllShiroUsers(pageNumber,
-				pageSize, sortColumn, sortDirection);
+		List<Account> accounts= accountService.getAllAccounts();
+		List<ShiroUser> users = buildShiroUsersFromAccounts(accounts);
 		logUsers(users);
 		model.addAttribute("users", users);
 		//model.addAttribute("sortColumn", sortColumn);
@@ -134,5 +135,17 @@ public class AccountManagementController {
 		} else {
 			return "false";
 		}
+	}
+	
+	private List<ShiroUser> buildShiroUsersFromAccounts(List<Account> accounts) {
+		List<ShiroUser> shiroUsers = new ArrayList<ShiroUser>();
+		for (Account account : accounts) {
+			List<String> roles =   accountService.extractStringRoleList(account.getRoles());
+			ShiroUser user = new ShiroUser(account.getId(), account.getUsername(), 
+					account.getEmail(), account.getBirthday(), account.getAge(),
+					roles, account.getRegisterDate());
+			shiroUsers.add(user);
+		}
+		return shiroUsers;
 	}
 }

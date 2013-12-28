@@ -3,6 +3,7 @@ package com.yigwoo.simple.rest;
 import java.net.URI;
 import java.util.Set;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 
@@ -40,7 +41,6 @@ public class AccountRestController {
 	@ResponseBody
 	public ResponseEntity<?> get(@PathVariable("id") int id) {
 		Account account = accountService.getAccountById(id);
-		logger.debug("{}", account.getUsername());
 		if (account == null) {
 			logger.warn("Account with id {} no found.", id);
 			return new ResponseEntity(HttpStatus.NOT_FOUND);
@@ -67,7 +67,7 @@ public class AccountRestController {
 	}
 	
 	private void ValidateAccount(Account account) {
-		Set constraintViolations = validator.validate(account);
+		Set<ConstraintViolation<Account>> constraintViolations = validator.validate(account);
 		if (!constraintViolations.isEmpty()) {
 			throw new ConstraintViolationException(constraintViolations);
 		}

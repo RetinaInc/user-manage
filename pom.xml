@@ -38,12 +38,8 @@
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.11</version>
-			<scope>test</scope>
-		</dependency>
+
+
 		<!-- Start Web Level Dependencies -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -185,6 +181,37 @@
 			<version>${guava.version}</version>
 		</dependency>
 		<!-- End Utilities Denpendencies -->
+
+		<!-- Start Test Dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+		  <groupId>org.springframework</groupId>
+		  <artifactId>spring-test</artifactId>
+		  <version>${spring.version}</version>
+		  <scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>javax.el</groupId>
+			<artifactId>javax.el-api</artifactId>
+			<version>3.0.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.web</groupId>
+			<artifactId>el-impl</artifactId>
+			<version>2.2</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- End Test Dependencies -->
+
 	</dependencies>
 
 	<dependencyManagement>
