@@ -4,17 +4,8 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
 	<display-name>yigwoo</display-name>
-	<context-param>
-		<param-name>contextConfigLocation</param-name>
-		<param-value>classpath*:/applicationContext.xml,
-			classpath*:/applicationContext-shiro.xml</param-value>
-	</context-param>
 
-	<listener>
-		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
-	</listener>
-
-	<!-- Start configure application's filters -->
+	<!-- Start Configure Application's Filters -->
 	<filter>
 		<filter-name>shiroFilter</filter-name>
 		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
@@ -38,20 +29,31 @@
 		<filter-name>sitemesh</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	<!-- End configure application's filters -->
+	<!-- End Configure Application's Filters -->
 
 	<session-config>
-		<session-timeout>15</session-timeout>
+		<session-timeout>20</session-timeout>
 	</session-config>
 
 
-	<!-- Start configure application's main servlet -->
+	<!-- Start Configure Application's Main Servlet -->
+	<context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+          classpath:spring/applicationContext.xml,
+          classpath:spring/applicationContext-shiro.xml</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+	
 	<servlet>
 		<servlet-name>main</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
-			<param-name>contextConfigLocation</param-name>
-			<param-value>/WEB-INF/spring-mvc.xml</param-value>
+		  <param-name>contextConfigLocation</param-name>
+		  <param-value>classpath:spring/spring-mvc.xml</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
@@ -61,12 +63,15 @@
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
-	<!-- End configure application's main servlet -->
-
+	<!-- End Configure Application's Main Servlet -->
+    
+    <!-- Start Configure Error Codes -->
+    <!-- 
 	<error-page>
 		<exception-type>java.lang.Throwable</exception-type>
 		<location>/error/500</location>
 	</error-page>
+	 -->
 	<error-page>
 		<error-code>500</error-code>
 		<location>/error/500</location>
@@ -75,4 +80,9 @@
 		<error-code>404</error-code>
 		<location>/error/404</location>
 	</error-page>
+	<error-page>
+	   <error-code>400</error-code>
+	   <location>/error/500</location>
+	</error-page>
+	<!-- End Configure Error Codes -->
 </web-app>

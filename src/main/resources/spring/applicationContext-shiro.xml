@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	                   http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	                   ">
+	<description>Shiro bean configuration</description>
+
+	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+		<property name="realm" ref="shiroDbRealm" />
+		<property name="cacheManager" ref="shiroEhcacheManager" />
+	</bean>
+
+	<bean id="shiroDbRealm" class="com.yigwoo.simple.service.ShiroDbRealm"
+		depends-on="accountMapper, roleMapper, accountRoleMapper">
+		<property name="accountService" ref="accountService" />
+	</bean>
+
+	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+		<property name="securityManager" ref="securityManager" />
+		<property name="loginUrl" value="/login" />
+		<property name="successUrl" value="/" />
+		<property name="unauthorizedUrl" value="/unauthorized"/>
+		<property name="filterChainDefinitions">
+			<value>
+				/login = authc
+				/logout = logout
+				/static/** = anon
+				/register/** = anon
+				/** = user
+			</value>
+		</property>
+	</bean>
+
+	<bean id="shiroEhcacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+		<property name="cacheManagerConfigFile" value="classpath:ehcache-shiro.xml" />
+	</bean>
+
+	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+</beans>

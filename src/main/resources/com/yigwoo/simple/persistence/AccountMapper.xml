@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yigwoo.simple.persistence.AccountMapper">
+	<resultMap id="roleResult" type="Role">
+		<id property="id" column="role_id" />
+		<result property="rolename" column="rolename" />
+	</resultMap>
+
+	<resultMap id="accountResult" type="Account">
+		<id property="id" column="id" />
+		<result property="username" column="username" />
+		<result property="email" column="email" />
+		<result property="birthday" column="birthday"/>
+		<result property="age" column="age"/>
+		<result property="password" column="password" />
+		<result property="salt" column="salt" />
+		<result property="registerDate" column="register_date" />
+		<collection property="roles" resultMap="roleResult" />
+	</resultMap>
+
+	<cache />
+	<insert id="insertAccount" parameterType="Account"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO ACCOUNT
+		(USERNAME, EMAIL, BIRTHDAY, PASSWORD, SALT, REGISTER_DATE)
+		VALUES (#{username}, #{email}, #{birthday}, #{password}, #{salt}, #{registerDate})
+	</insert>
+
+	<update id="updateAccount" parameterType="Account">
+		UPDATE ACCOUNT SET
+		  EMAIL = #{email},
+		  BIRTHDAY = #{birthday},
+		  PASSWORD = #{password}, 
+		  SALT = #{salt}
+		WHERE USERNAME = #{username}
+	</update>
+
+	<delete id="deleteAccountById" parameterType="int">
+		DELETE FROM ACCOUNT
+		WHERE ID = #{id}
+	</delete>
+
+    <select id="getAllAccounts" resultMap="accountResult">
+        SELECT A.ID, A.USERNAME, A.EMAIL, A.BIRTHDAY, CAL_AGE(A.USERNAME) AS AGE, A.PASSWORD, A.SALT, A.REGISTER_DATE,
+               R.ID AS ROLE_ID, R.ROLENAME
+        FROM ACCOUNT A
+            LEFT OUTER JOIN ACCOUNT_ROLE AR ON A.ID = AR.ACCOUNT_ID
+            LEFT OUTER JOIN ROLE R ON R.ID = AR.ROLE_ID
+    </select>
+
+	<select id="getAccountByUsername" parameterType="string" resultMap="accountResult">
+		SELECT A.ID, A.USERNAME, A.EMAIL, A.BIRTHDAY, CAL_AGE(A.USERNAME) AS AGE, A.PASSWORD, A.SALT, A.REGISTER_DATE,
+		       R.ID AS ROLE_ID, R.ROLENAME
+		FROM ACCOUNT A
+		  LEFT OUTER JOIN ACCOUNT_ROLE AR ON A.ID = AR.ACCOUNT_ID
+		  LEFT OUTER JOIN ROLE R ON R.ID = AR.ROLE_ID
+		WHERE A.USERNAME=#{username};
+	</select>
+
+	<select id="getAccountById" parameterType="int" resultMap="accountResult">
+		SELECT A.ID, A.USERNAME, A.EMAIL, A.BIRTHDAY, CAL_AGE(A.USERNAME) AS AGE, A.REGISTER_DATE,
+               R.ID AS ROLE_ID, R.ROLENAME
+        FROM ACCOUNT A
+          LEFT OUTER JOIN ACCOUNT_ROLE AR ON A.ID = AR.ACCOUNT_ID
+          LEFT OUTER JOIN ROLE R ON R.ID = AR.ROLE_ID		
+		WHERE A.ID = #{id}
+	</select>
+
+	<select id="getAccountByEmail" parameterType="string" resultType="Account">
+		SELECT ID, USERNAME, EMAIL, BIRTHDAY, CAL_AGE(USERNAME) AS AGE, PASSWORD, SALT, REGISTER_DATE as registerDate
+		FROM ACCOUNT
+		WHERE EMAIL = #{email}
+	</select>
+</mapper>

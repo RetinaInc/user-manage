@@ -2,16 +2,17 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="shiro" uri="http://shiro.apache.org/tags"%>
+<%@taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Create User</title>
+<title><spring:message code="page.createUser.title"/></title>
 </head>
 <body>
 	<fieldset>
 		<legend>
-			<small>Create Admin</small>
+			<small><spring:message code="label.addAdmin"/></small>
 		</legend>
 		<form id="registrationForm" action="${ctx}/manage/users/create"
 			method="post" class="form-horizontal">
