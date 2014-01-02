@@ -1,19 +1,15 @@
 package com.yigwoo.simple.web;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.apache.shiro.authc.UsernamePasswordToken;
-import org.apache.shiro.config.Ini;
-import org.apache.shiro.mgt.SecurityManager;
 import org.apache.shiro.subject.Subject;
-import org.apache.shiro.util.Factory;
-import org.apache.shiro.web.config.WebIniSecurityManagerFactory;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,22 +27,30 @@ public class ProfileControllerTests extends AbstractContextControllerTests {
 	
 	@Before
 	public void beforeTest() {
-		SecurityManager securityManager = (DefaultWebSecurityManager) wac.getBean("securityManager");
-		setSecurityManager(securityManager);
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build();
-	}
-	
-	@Test
-	public void getForm() throws Exception {
+		DefaultWebSecurityManager securityManager = (DefaultWebSecurityManager) wac.getBean("securityManager");
+		DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+		securityManager.setSessionManager(sessionManager);
+		setSecurityManager(securityManager);
 		Subject subject = new Subject.Builder(getSecurityManager()).buildSubject();
 		AuthenticationToken token = new UsernamePasswordToken("superuser", "superuser"); 
 		subject.login(token);
 		setSubject(subject);
+	}
+	
+	@Test
+	public void getForm() throws Exception {
 		this.mockMvc.perform(
 				get("/profile")
 				.accept(MediaType.TEXT_HTML)
 				)
-				.andDo(print());
+				.andDo(print())
+				.andExpect(view().name("user/profile"))
+				.andExpect(forwardedUrl("/WEB-INF/views/user/profile.jsp"))
+				.andExpect(model().size(1))
+				.andExpect(model().attributeExists("account"))
+				;
+				
 	}
 
 	@After

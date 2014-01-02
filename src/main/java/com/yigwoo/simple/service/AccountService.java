@@ -17,7 +17,6 @@ import com.yigwoo.simple.domain.Role;
 import com.yigwoo.simple.persistence.AccountMapper;
 import com.yigwoo.simple.persistence.AccountRoleMapper;
 import com.yigwoo.simple.persistence.RoleMapper;
-import com.yigwoo.simple.service.ShiroDbRealm.ShiroUser;
 import com.yigwoo.simple.util.DateProvider;
 import com.yigwoo.simple.util.Digests;
 import com.yigwoo.simple.util.Encodes;
