@@ -37,6 +37,7 @@ public class AccountRestController {
 	@Autowired
 	private Validator validator;
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value="/{id}", method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> get(@PathVariable("id") int id) {
@@ -48,6 +49,7 @@ public class AccountRestController {
 		return new ResponseEntity(account, HttpStatus.OK);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@RequestMapping(method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<?> create(@RequestBody Account account, UriComponentsBuilder uriComponentsBuilder) {
@@ -60,6 +62,7 @@ public class AccountRestController {
 		return new ResponseEntity(headers, HttpStatus.CREATED);
 	}
 	
+	@SuppressWarnings("rawtypes")
 	@RequestMapping(value="/{id}", method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> update(@RequestBody Account account) {
 		accountService.updateAccount(account);

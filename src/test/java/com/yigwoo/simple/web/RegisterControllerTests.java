@@ -20,17 +20,17 @@ import org.springframework.web.context.WebApplicationContext;
 public class RegisterControllerTests extends AbstractContextControllerTests {
 
 	@Autowired
-	protected static WebApplicationContext wac;
-	private static MockMvc mockMvc;
+	protected WebApplicationContext wac;
+	private  MockMvc mockMvc;
 	
 	@Before
 	public void setup() {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(wac).build(); 
+		mockMvc = MockMvcBuilders.webAppContextSetup(wac).build(); 
 	}
 	
 	@Test
 	public void getForm() throws Exception {
-		this.mockMvc.perform(
+		mockMvc.perform(
 				get("/register")
 				.accept(MediaType.TEXT_HTML)
 				)
@@ -42,7 +42,7 @@ public class RegisterControllerTests extends AbstractContextControllerTests {
 	@Test
 	@Transactional
 	public void submitSuccess() throws Exception {
-		this.mockMvc.perform(
+		mockMvc.perform(
 				post("/register")
 				.param("username", "test1")
 				.param("email", "test@test.com")

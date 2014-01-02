@@ -9,18 +9,15 @@ import org.apache.shiro.util.LifecycleUtils;
 import org.apache.shiro.util.ThreadState;
 import org.junit.AfterClass;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.context.WebApplicationContext;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(locations = {
 		"classpath:spring/spring-mvc.xml",
-		"classpath:spring/applicationContext.xml",
-		"classpath:spring/applicationContext-shiro.xml"
+		"classpath:spring/applicationContext.xml"
 		})
 public class AbstractContextControllerTests {
 	
