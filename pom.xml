@@ -15,7 +15,7 @@
 		<ehcache.version>2.6.5</ehcache.version>
 		<guava.version>15.0</guava.version>
 		<hibernate-validator.version>5.0.1.Final</hibernate-validator.version>
-		<jackson.version>2.10.1</jackson.version>
+		<jackson.version>2.12.1</jackson.version>
 		<jstl.version>1.2</jstl.version>
 		<logback.version>1.0.13</logback.version>
 		<mybatis.version>3.2.3</mybatis.version>
